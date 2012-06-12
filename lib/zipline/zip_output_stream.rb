@@ -20,10 +20,7 @@ module Zipline
       #same as normal ZipOutputStream
       new_entry = Zip::ZipEntry.new(@filename, entry_name)
 
-      #always use passthrough compressor
-      new_entry.compression_method = Zip::ZipEntry::DEFLATED
-
-      #defer crc and size until the footer
+      #THIS IS THE MAGIC, tells zip to look after data for size, crc
       new_entry.gp_flags = new_entry.gp_flags | 0x0008
 
       #will write header and set @current_entry and whatever else needs doing
