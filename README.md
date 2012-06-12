@@ -1,6 +1,6 @@
 # Zipline
 
-TODO: Write a gem description
+A gem to stream dynamically generated zip files from a rails application
 
 ## Installation
 
@@ -12,13 +12,16 @@ And then execute:
 
     $ bundle
 
-Or install it yourself as:
-
-    $ gem install zipline
-
 ## Usage
 
-TODO: Write usage instructions here
+    class MyController < ApplicationController
+      include Zipline
+      def index
+        users= User.all
+        files =  users.map{ |user| [user.avatar, "#{user.username}.png"] }
+        zipline( files, 'avatars.zip')
+      end
+    end
 
 ## Contributing
 
