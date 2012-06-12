@@ -23,7 +23,7 @@ module Zipline
     zip_generator = ZipGenerator.new(files)
     headers['Content-Disposition'] = "attachment; filename=#{zipname}"
     headers['Content-Type'] = Mime::Type.lookup_by_extension('zip').to_s
-    headers['Content-Length'] = zip_generator.precalculate_size.to_s
+    headers['Content-Length'] = 1_000_000.to_s #NO FLIPPING IDEA
     response.sending_file = true
     response.cache_control[:public] ||= false
     self.response_body = zip_generator
