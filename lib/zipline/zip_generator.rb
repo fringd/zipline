@@ -33,6 +33,7 @@ module Zipline
           end
           throw "bad_file" unless %w{Fog::Storage::AWS::File File}.include? file.class.to_s
 
+          name = uniquify_name(name)
           write_file(zip, file, name)
         end
       end
@@ -70,6 +71,43 @@ module Zipline
       when 'Fog::Storage::AWS::FILE'
         file.content_length
       end
+    end
+
+    def uniquify_name(name)
+      @used_names ||= Set.new
+
+
+      if @used_names.include?(name)
+
+        #remove suffix e.g. ".foo"
+        parts = name.split '.'
+        name, extension =
+          if parts.length == 1
+            #no suffix, e.g. README
+            parts << ''
+          else
+            extension = parts.pop
+            [parts.join('.'), ".#{extension}"]
+          end
+
+        #trailing _#{number}
+        pattern = /_(\d+)$/
+
+        unless name.match pattern
+          name = "#{name}_1"
+        end
+
+        while @used_names.include? name + extension
+          #increment trailing number
+          name = name.sub( pattern ) { |x| "_#{$1.to_i + 1}" }
+        end
+
+        #reattach suffix
+        name += extension
+      end
+
+      @used_names << name
+      name
     end
   end
 end
