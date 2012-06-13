@@ -14,8 +14,16 @@ And then execute:
 
 ## Usage
 
+set up some models with [carrierwave](https://github.com/jnicklas/carrierwave)
+
+You'll need to be using unicorn
+
     class MyController < ApplicationController
+      # enable streaming responses
+      include ActionController::Streaming
+      # enable zipline
       include Zipline
+      
       def index
         users= User.all
         files =  users.map{ |user| [user.avatar, "#{user.username}.png"] }
