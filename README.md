@@ -14,7 +14,7 @@ And then execute:
 
 ## Usage
 
-set up some models with [carrierwave](https://github.com/jnicklas/carrierwave)
+set up some models with [carrierwave](https://github.com/jnicklas/carrierwave) Right now only plain file storage and S3 are supported
 
 You'll need to be using unicorn
 
