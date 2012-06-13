@@ -16,7 +16,7 @@ And then execute:
 
 set up some models with [carrierwave](https://github.com/jnicklas/carrierwave) Right now only plain file storage and S3 are supported
 
-You'll need to be using [unicorn](http://unicorn.bogomips.org/)
+You'll need to be using [unicorn](http://unicorn.bogomips.org/) or rainbows or some other server that supports streaming output.
 
     class MyController < ApplicationController
       # enable streaming responses
