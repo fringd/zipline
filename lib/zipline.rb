@@ -1,6 +1,7 @@
 require "zipline/version"
 
 require 'zip/zip'
+require 'curb'
 
 require "zipline/fake_stream"
 require "zipline/zip_output_stream"
