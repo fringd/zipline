@@ -30,6 +30,10 @@ You'll need to be using [unicorn](http://unicorn.bogomips.org/) or rainbows or s
         zipline( files, 'avatars.zip')
       end
     end
+    
+## Notes
+1. MacOS built in archive support does not seem to work. Some other archivers don't work. Not sure how to fix this, may just be a limitation of those archivers.
+2. 
 
 ## Contributing
 
@@ -38,3 +42,10 @@ You'll need to be using [unicorn](http://unicorn.bogomips.org/) or rainbows or s
 3. Commit your changes (`git commit -am 'Added some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create new Pull Request
+
+## TODO (possible contributions?)
+
+1. support plain File objects, although... you should be just using rubyzip directly maybe.
+2. tests!
+3. support rails 4.0 streaming
+4. extract library for plain ruby streaming zips, which this will depend on.
