@@ -39,7 +39,7 @@ module Zipline
     end
 
     def write_local_footer(entry)
-      @outputStream << [ 0x08074b50, entry.crc, 0, entry.compressed_size, 0, entry.size].pack('VVVVVV')
+      @outputStream << [ 0x08074b50, entry.crc, entry.compressed_size, entry.size].pack('VVVV')
     end
 
     #never need to do this because we set correct sizes up front
