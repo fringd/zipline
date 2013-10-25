@@ -31,15 +31,6 @@ You'll need to be using [unicorn](http://unicorn.bogomips.org/) or rainbows or s
       end
     end
     
-## Notes
-MacOS built in archive support does not seem to work. Some other archivers don't work.
-I am beginning to believe pretty strongly that this is just be a limitation of those archivers.
-Other projects that stream zips seem to run into the same problem. Setting general purpose bit
-3 like this and putting size and crc after the data is outlined over a decade ago in the zip standard,
-so it is not a new feature. It seems that some simpler zip programs don't support it properly, though,
-so If that is a deal breaker then you need to give up the dream and build the zip in memory or on disk.
-If you do go with zipline, you might want to be ready with a "trouble unzipping? try installing 7zip."
-
 ## Contributing
 
 1. Fork it
