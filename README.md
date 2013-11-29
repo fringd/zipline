@@ -15,7 +15,7 @@ And then execute:
 ## Usage
 
 set up some models with [carrierwave](https://github.com/jnicklas/carrierwave) or [paperclip](https://github.com/thoughtbot/paperclip).
- Right now only plain file storage and S3 are supported
+ Right now only plain file storage and S3 are supported in the case of [carrierwave](https://github.com/jnicklas/carrierwave) and only plain file storage, not S3 in the case of [paperclip](https://github.com/thoughtbot/paperclip).
 
 You'll need to be using [unicorn](http://unicorn.bogomips.org/) or rainbows or some other server that supports streaming output.
 
