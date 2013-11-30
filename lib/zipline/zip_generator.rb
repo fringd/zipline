@@ -21,7 +21,7 @@ module Zipline
       output = new_output(&block)
       ZipOutputStream.open(output) do |zip|
         @files.each do |file, name|
-          file = file.file
+	  file = file.file if file.respond_to? :file
 
           #normalize file
           if file.class.to_s == 'CarrierWave::Storage::Fog::File'
@@ -31,6 +31,10 @@ module Zipline
             path = file.send(:file)
             file = File.open(path)
           end
+	  if file.class.to_s == 'Paperclip::Attachment'
+            path = file.send(:path)
+            file = File.open(path)
+	  end
           throw "bad_file" unless %w{Fog::Storage::AWS::File File}.include? file.class.to_s
 
           name = uniquify_name(name)
