@@ -1,7 +1,7 @@
 # a ZipOutputStream that never rewinds output
 # in order for that to be possible we store only uncompressed files
 module Zipline
-  class ZipOutputStream < Zip::ZipOutputStream
+  class OutputStream < Zip::OutputStream
 
     #we need to be able to hand out own custom output in order to stream to browser
     def initialize(io)
