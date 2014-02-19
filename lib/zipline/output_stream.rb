@@ -8,38 +8,35 @@ module Zipline
       # Create an io stream thing
       super '-', true
       # Overwrite it with my own
-      @outputStream = io
+      @output_stream = io
     end
 
     def stream
-      @outputStream
+      @output_stream
     end
 
     def put_next_entry(entry_name, size)
-      @givenSize = size
       #same as normal ZipOutputStream
-      new_entry = Zip::ZipEntry.new(@filename, entry_name)
+      new_entry = Zip::Entry.new(@file_name, entry_name)
+      new_entry.size = size
 
       #THIS IS THE MAGIC, tells zip to look after data for size, crc
       new_entry.gp_flags = new_entry.gp_flags | 0x0008
 
-      #will write header and set @current_entry and whatever else needs doing
-      init_next_entry(new_entry)
-
-      @currentEntry = new_entry
+      super(new_entry)
     end
 
     # just reset state, no rewinding required
     def finalize_current_entry
-      if @currentEntry
-        entry = @currentEntry
+      if @current_entry
+        entry = @current_entry
         super
         write_local_footer(entry)
       end
     end
 
     def write_local_footer(entry)
-      @outputStream << [ 0x08074b50, entry.crc, entry.compressed_size, entry.size].pack('VVVV')
+      @output_stream << [ 0x08074b50, entry.crc, entry.compressed_size, entry.size].pack('VVVV')
     end
 
     #never need to do this because we set correct sizes up front

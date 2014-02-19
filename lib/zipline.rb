@@ -1,15 +1,11 @@
 require "zipline/version"
 
-require 'zip/zip'
+require 'zip'
 require 'curb'
 
 require "zipline/fake_stream"
-require "zipline/zip_output_stream"
+require "zipline/output_stream"
 require "zipline/zip_generator"
-
-require "zipline/fake_stream_faker"
-require "zipline/fake_string"
-require "zipline/zip_size_calculator"
 
 # class MyController < ApplicationController
 #   include Zipline

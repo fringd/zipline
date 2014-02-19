@@ -15,7 +15,7 @@ module Zipline
 
     def each(&block)
       output = new_output(&block)
-      ZipOutputStream.open(output) do |zip|
+      OutputStream.open(output) do |zip|
         @files.each do |file, name|
 	  file = file.file if file.respond_to? :file
 
