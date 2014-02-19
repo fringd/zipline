@@ -15,7 +15,7 @@ And then execute:
 ## Usage
 
 set up some models with [carrierwave](https://github.com/jnicklas/carrierwave) or [paperclip](https://github.com/thoughtbot/paperclip).
- Right now only plain file storage and S3 are supported in the case of [carrierwave](https://github.com/jnicklas/carrierwave) and only plain file storage, not S3 in the case of [paperclip](https://github.com/thoughtbot/paperclip).
+ Right now only plain file storage and S3 are supported in the case of [carrierwave](https://github.com/jnicklas/carrierwave) and only plain file storage, not S3 in the case of [paperclip](https://github.com/thoughtbot/paperclip). Alternatively, you can pass in plain old File objects. Not to be judgy, but plain old file objects are probably not the best option most of the time.
 
 You'll need to be using [unicorn](http://unicorn.bogomips.org/) or rainbows or some other server that supports streaming output.
 
@@ -31,6 +31,8 @@ You'll need to be using [unicorn](http://unicorn.bogomips.org/) or rainbows or s
         zipline( files, 'avatars.zip')
       end
     end
+
+For directories, just give the files names like "directory/file".
     
 ## Contributing
 
@@ -42,7 +44,7 @@ You'll need to be using [unicorn](http://unicorn.bogomips.org/) or rainbows or s
 
 ## TODO (possible contributions?)
 
-* support plain File objects, although... you should be just using rubyzip directly maybe.
 * tests!
 * support rails 4.0 streaming
 * extract library for plain ruby streaming zips, which this will depend on.
+* get my changes to support streaming zips checked in to the rubyzip library.

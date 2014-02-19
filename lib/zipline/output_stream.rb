@@ -16,7 +16,6 @@ module Zipline
     end
 
     def put_next_entry(entry_name, size)
-      #same as normal ZipOutputStream
       new_entry = Zip::Entry.new(@file_name, entry_name)
       new_entry.size = size
 
@@ -28,8 +27,8 @@ module Zipline
 
     # just reset state, no rewinding required
     def finalize_current_entry
-      if @current_entry
-        entry = @current_entry
+      if current_entry
+        entry = current_entry
         super
         write_local_footer(entry)
       end
@@ -42,6 +41,11 @@ module Zipline
     #never need to do this because we set correct sizes up front
     def update_local_headers
       nil
+    end
+
+    # helper to deal with difference between rubyzip 1.0 and 1.1
+    def current_entry
+      @currentEntry || @current_entry
     end
   end
 end
