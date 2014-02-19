@@ -8,10 +8,6 @@ module Zipline
       @files = files
     end
 
-    def precalculate_size
-      ZipSizeCalculator.new(@files).size
-    end
-
     #this is supposed to be streamed!
     def to_s
       throw "stop!"
