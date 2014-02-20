@@ -1,6 +1,9 @@
 # Zipline
 
-A gem to stream dynamically generated zip files from a rails application
+A gem to stream dynamically generated zip files from a rails application. Unlike other solutions that generate zips for user download, zipline does not wait for the entire zip file to be created (or even for the entire input file in the cloud to be downloaded) before it begins sending the zip file to the user. It does this by never seeking backwards during zip creation, and streaming the zip file over http as it is constructed. The advantages of this are:
+
+- Removes need for large disk space or memory allocation to generate zips, even huge zips. So it works on Heroku.
+- The user begins downloading immediately, which decreaceses latency, download time, and timeouts on Heroku.
 
 ## Installation
 
