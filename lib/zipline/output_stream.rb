@@ -6,7 +6,7 @@ module Zipline
     #we need to be able to hand out own custom output in order to stream to browser
     def initialize(io)
       # Create an io stream thing
-      super '-', true
+      super StringIO.new, true
       # Overwrite it with my own
       @output_stream = io
     end
