@@ -17,21 +17,23 @@ module Zipline
       output = new_output(&block)
       OutputStream.open(output) do |zip|
         @files.each do |file, name|
-	  file = file.file if file.respond_to? :file
+          file = file.file if file.respond_to? :file
 
           #normalize file
-          if file.class.to_s == 'CarrierWave::Storage::Fog::File'
-            file = file.send(:file)
+          unless is_io?(file)
+            case file.class.to_s
+            when 'CarrierWave::Storage::Fog::File'
+              file = file.send(:file)
+            when 'CarrierWave::SanitizedFile'
+              path = file.send(:file)
+              file = File.open(path)
+            when 'Paperclip::Attachment'
+              path = file.send(:path)
+              file = File.open(path)
+            else
+              raise(ArgumentError, 'Bad File/Stream')
+            end
           end
-          if file.class.to_s == 'CarrierWave::SanitizedFile'
-            path = file.send(:file)
-            file = File.open(path)
-          end
-	  if file.class.to_s == 'Paperclip::Attachment'
-            path = file.send(:path)
-            file = File.open(path)
-	  end
-          throw "bad_file" unless %w{Fog::Storage::AWS::File File}.include? file.class.to_s
 
           name = uniquify_name(name)
           write_file(zip, file, name)
@@ -48,7 +50,7 @@ module Zipline
 
       zip.put_next_entry name, size
 
-      if file.is_a? File
+      if is_io?(file)
         while buffer = file.read(2048)
           zip << buffer
         end
@@ -65,12 +67,17 @@ module Zipline
     end
 
     def get_size(file)
-      case file.class.to_s
-      when 'File'
+      if is_io?(file)
         file.size
-      when 'Fog::Storage::AWS::FILE'
+      elsif file.class.to_s == 'Fog::Storage::AWS::FILE'
         file.content_length
+      else
+        throw 'cannot determine file size'
       end
+    end
+
+    def is_io?(file)
+      file.is_a?(IO) || (defined?(StringIO) && file.is_a?(StringIO))
     end
 
     def uniquify_name(name)
