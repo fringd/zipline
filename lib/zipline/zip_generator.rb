@@ -1,6 +1,5 @@
 # this class acts as a streaming body for rails
 # initialize it with an array of the files you want to zip
-# right now only carrierwave is supported with file storage or S3
 module Zipline
   class ZipGenerator
     # takes an array of pairs [[uploader, filename], ... ]
@@ -16,27 +15,30 @@ module Zipline
     def each(&block)
       output = new_output(&block)
       OutputStream.open(output) do |zip|
-        @files.each do |file, name|
-	  file = file.file if file.respond_to? :file
+        @files.each {|file, name| handle_file(file, name) }
+      end
+    end
 
-          #normalize file
-          if file.class.to_s == 'CarrierWave::Storage::Fog::File'
-            file = file.send(:file)
-          end
-          if file.class.to_s == 'CarrierWave::SanitizedFile'
-            path = file.send(:file)
-            file = File.open(path)
-          end
-	  if file.class.to_s == 'Paperclip::Attachment'
-            path = file.send(:path)
-            file = File.open(path)
-	  end
-          throw "bad_file" unless %w{Fog::Storage::AWS::File File}.include? file.class.to_s
+    def handle_file(file)
+      file = file.file if file.respond_to? :file
+      file = normalize(file)
+      name = uniquify_name(name)
+      write_file(zip, file, name)
+    end
 
-          name = uniquify_name(name)
-          write_file(zip, file, name)
+    def normalize(file)
+      unless is_io?(file)
+        if file.respond_to?(:url) && !file.is_a?(Paperclip::Attachment)
+          file = file
+        elsif file.respond_to? :file
+          file = File.open(file.file)
+        elsif file.respond_to? :path
+          file = File.open(file.path)
+        else
+          raise(ArgumentError, 'Bad File/Stream')
         end
       end
+      file
     end
 
     def new_output(&block)
@@ -48,7 +50,7 @@ module Zipline
 
       zip.put_next_entry name, size
 
-      if file.is_a? File
+      if is_io?(file)
         while buffer = file.read(2048)
           zip << buffer
         end
@@ -65,12 +67,17 @@ module Zipline
     end
 
     def get_size(file)
-      case file.class.to_s
-      when 'File'
+      if is_io?(file)
         file.size
-      when 'Fog::Storage::AWS::FILE'
+      elsif file.respond_to? :content_length
         file.content_length
+      else
+        throw 'cannot determine file size'
       end
+    end
+
+    def is_io?(file)
+      file.is_a?(IO) || (defined?(StringIO) && file.is_a?(StringIO))
     end
 
     def uniquify_name(name)
