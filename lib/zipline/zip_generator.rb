@@ -1,6 +1,5 @@
 # this class acts as a streaming body for rails
 # initialize it with an array of the files you want to zip
-# right now only carrierwave is supported with file storage or S3
 module Zipline
   class ZipGenerator
     # takes an array of pairs [[uploader, filename], ... ]
@@ -16,29 +15,30 @@ module Zipline
     def each(&block)
       output = new_output(&block)
       OutputStream.open(output) do |zip|
-        @files.each do |file, name|
-          file = file.file if file.respond_to? :file
+        @files.each {|file, name| handle_file(file, name) }
+      end
+    end
 
-          #normalize file
-          unless is_io?(file)
-            case file.class.to_s
-            when 'CarrierWave::Storage::Fog::File'
-              file = file.send(:file)
-            when 'CarrierWave::SanitizedFile'
-              path = file.send(:file)
-              file = File.open(path)
-            when 'Paperclip::Attachment'
-              path = file.send(:path)
-              file = File.open(path)
-            else
-              raise(ArgumentError, 'Bad File/Stream')
-            end
-          end
+    def handle_file(file)
+      file = file.file if file.respond_to? :file
+      file = normalize(file)
+      name = uniquify_name(name)
+      write_file(zip, file, name)
+    end
 
-          name = uniquify_name(name)
-          write_file(zip, file, name)
+    def normalize(file)
+      unless is_io?(file)
+        if file.respond_to?(:url) && !file.is_a?(Paperclip::Attachment)
+          file = file
+        elsif file.respond_to? :file
+          file = File.open(file.file)
+        elsif file.respond_to? :path
+          file = File.open(file.path)
+        else
+          raise(ArgumentError, 'Bad File/Stream')
         end
       end
+      file
     end
 
     def new_output(&block)
@@ -69,7 +69,7 @@ module Zipline
     def get_size(file)
       if is_io?(file)
         file.size
-      elsif file.class.to_s == 'Fog::Storage::AWS::FILE'
+      elsif file.respond_to? :content_length
         file.content_length
       else
         throw 'cannot determine file size'
