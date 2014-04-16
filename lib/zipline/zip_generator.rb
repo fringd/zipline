@@ -15,12 +15,11 @@ module Zipline
     def each(&block)
       output = new_output(&block)
       OutputStream.open(output) do |zip|
-        @files.each {|file, name| handle_file(file, name) }
+        @files.each {|file, name| handle_file(zip, file, name) }
       end
     end
 
-    def handle_file(file)
-      file = file.file if file.respond_to? :file
+    def handle_file(zip, file, name)
       file = normalize(file)
       name = uniquify_name(name)
       write_file(zip, file, name)
@@ -47,7 +46,6 @@ module Zipline
 
     def write_file(zip, file, name)
       size = get_size(file)
-
       zip.put_next_entry name, size
 
       if is_io?(file)
@@ -82,7 +80,6 @@ module Zipline
 
     def uniquify_name(name)
       @used_names ||= Set.new
-
 
       if @used_names.include?(name)
 
