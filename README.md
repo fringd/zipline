@@ -48,6 +48,5 @@ For directories, just give the files names like "directory/file".
 ## TODO (possible contributions?)
 
 * tests!
-* support rails 4.0 streaming
 * extract library for plain ruby streaming zips, which this will depend on.
 * get my changes to support streaming zips checked in to the rubyzip library.
