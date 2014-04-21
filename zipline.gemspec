@@ -16,6 +16,6 @@ Gem::Specification.new do |gem|
   gem.version       = Zipline::VERSION
 
   gem.add_dependency 'rubyzip', ['>= 1.0', '<= 1.1.2']
-  gem.add_dependency 'rails', '>= 3.2.1'
+  gem.add_dependency 'rails', ['>= 3.2.1', '< 4.3']
   gem.add_dependency 'curb'
 end
