@@ -65,7 +65,7 @@ module Zipline
     end
 
     def get_size(file)
-      if is_io?(file)
+      if is_io?(file) || file.respond_to?(:size)
         file.size
       elsif file.respond_to? :content_length
         file.content_length
