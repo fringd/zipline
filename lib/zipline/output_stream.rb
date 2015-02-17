@@ -17,12 +17,16 @@ module Zipline
 
     def put_next_entry(entry_name, size)
       new_entry = Zip::Entry.new(@file_name, entry_name)
-      new_entry.size = size
 
       #THIS IS THE MAGIC, tells zip to look after data for size, crc
       new_entry.gp_flags = new_entry.gp_flags | 0x0008
 
       super(new_entry)
+
+      # Uncompressed size in the local file header must be zero when bit 3
+      # of the general purpose flags is set, so set the size after the header
+      # has been written.
+      new_entry.size = size
     end
 
     # just reset state, no rewinding required
