@@ -36,6 +36,20 @@ You'll need to be using [unicorn](http://unicorn.bogomips.org/) or rainbows or s
     end
 
 For directories, just give the files names like "directory/file".
+
+To stream files from a remote URL, use open-uri with a [lazy enumerator](http://ruby-doc.org/core-2.0.0/Enumerator/Lazy.html):
+
+    require 'open-uri'
+    avatars = [
+      # remote_url                          zip_path
+      [ 'http://www.example.com/user1.png', 'avatars/user1.png' ]
+      [ 'http://www.example.com/user2.png', 'avatars/user2.png' ]
+      [ 'http://www.example.com/user3.png', 'avatars/user3.png' ]
+    ]
+    file_mappings = avatars
+      .lazy  # Lazy allows us to begin sending the download immediately instead of waiting to download everything
+      .map { |url, path| [open(url), path] }
+    zipline(file_mappings, 'avatars.zip')
     
 ## Contributing
 
