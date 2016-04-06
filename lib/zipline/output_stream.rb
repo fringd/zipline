@@ -4,7 +4,7 @@ module Zipline
   class OutputStream < Zip::OutputStream
 
     #we need to be able to hand out own custom output in order to stream to browser
-    def initialize(io)
+    def initialize(io, stream=false, encrypter=nil)
       # Create an io stream thing
       super StringIO.new, true
       # Overwrite it with my own
