@@ -29,7 +29,7 @@ module Zipline
     end
 
     def <<(x)
-      return if x.blank?
+      return if x.nil? || x.size <= 0
       throw "bad class #{x.class}" unless x.class == String
       @pos += x.bytesize
       @block.call(x.to_s)

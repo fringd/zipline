@@ -15,7 +15,7 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   gem.version       = Zipline::VERSION
 
-  gem.add_dependency 'rubyzip', ['>= 1.0', '<= 1.1.2']
+  gem.add_dependency 'rubyzip', ['>= 1.0', '<= 1.1.7']
   gem.add_dependency 'rails', ['>= 3.2.1', '< 4.3']
   gem.add_dependency 'curb'
 end
