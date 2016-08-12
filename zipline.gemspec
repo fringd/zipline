@@ -4,7 +4,7 @@ require File.expand_path('../lib/zipline/version', __FILE__)
 Gem::Specification.new do |gem|
   gem.authors       = ["Ram Dobson"]
   gem.email         = ["ram.dobson@solsystemscompany.com"]
-  gem.description   = %q{this is a giant pile of hax that may let you stream dynamically generated zip files}
+  gem.description   = %q{a module for streaming dynamically generated zip files}
   gem.summary       = %q{stream zip files from rails}
   gem.homepage      = "http://github.com/fringd/zipline"
 
@@ -15,7 +15,7 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   gem.version       = Zipline::VERSION
 
-  gem.add_dependency 'rubyzip', ['>= 1.0', '<= 1.1.2']
+  gem.add_dependency 'zip_tricks', ['>= 3.0.0', '<= 4.0.0']
   gem.add_dependency 'rails', ['>= 3.2.1', '< 4.3']
   gem.add_dependency 'curb'
 end
