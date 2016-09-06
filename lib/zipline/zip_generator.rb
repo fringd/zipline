@@ -41,7 +41,7 @@ module Zipline
     end
 
     def write_file(streamer, file, name)
-      streamer.write_stored_file(name) do |writer_for_file|
+      streamer.write_deflated_file(name) do |writer_for_file|
         if file.respond_to?(:url) || file.respond_to?(:expiring_url)
           # expiring_url seems needed for paperclip to work
           the_remote_url = file.respond_to?(:expiring_url) ? file.expiring_url : file.url
