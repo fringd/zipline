@@ -1,10 +1,5 @@
 require "zipline/version"
-
-require 'zip'
 require 'curb'
-
-require "zipline/fake_stream"
-require "zipline/output_stream"
 require "zipline/zip_generator"
 
 # class MyController < ApplicationController

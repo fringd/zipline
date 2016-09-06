@@ -13,16 +13,16 @@ module Zipline
     end
 
     def each(&block)
-      output = new_output(&block)
-      OutputStream.open(output) do |zip|
-        @files.each {|file, name| handle_file(zip, file, name) }
+      fake_io_writer = ZipTricks::BlockWrite.new(&block)
+      ZipTricks::Streamer.open(fake_io_writer) do |streamer|
+        @files.each {|file, name| handle_file(streamer, file, name) }
       end
     end
 
-    def handle_file(zip, file, name)
+    def handle_file(streamer, file, name)
       file = normalize(file)
       name = uniquify_name(name)
-      write_file(zip, file, name)
+      write_file(streamer, file, name)
     end
 
     def normalize(file)
@@ -40,42 +40,25 @@ module Zipline
       file
     end
 
-    def new_output(&block)
-      FakeStream.new(&block)
-    end
-
-    def write_file(zip, file, name)
-      size = get_size(file)
-      zip.put_next_entry name, size
-
-      if is_io?(file)
-        while buffer = file.read(2048)
-          zip << buffer
-        end
-      else
-        the_remote_url = file.url(Time.now + 1.minutes)
-        c = Curl::Easy.new(the_remote_url) do |curl|
-          curl.on_body do |data|
-            zip << data
-            data.bytesize
+    def write_file(streamer, file, name)
+      streamer.add_stored_entry(name) do |writer_for_file|
+        if is_io?(file)
+          IO.copy_stream(file, writer_for_file)
+        else
+          the_remote_url = file.url(Time.now + 1.minutes)
+          c = Curl::Easy.new(the_remote_url) do |curl|
+            curl.on_body do |data|
+              writer_for_file << data
+              data.bytesize
+            end
           end
+          c.perform
         end
-        c.perform
       end
     end
 
-    def get_size(file)
-      if is_io?(file) || file.respond_to?(:size)
-        file.size
-      elsif file.respond_to? :content_length
-        file.content_length
-      else
-        throw 'cannot determine file size'
-      end
-    end
-
-    def is_io?(file)
-      file.is_a?(IO) || (defined?(StringIO) && file.is_a?(StringIO))
+    def is_io?(io_ish)
+      io_ish.respond_to? :read
     end
 
     def uniquify_name(name)

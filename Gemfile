@@ -4,7 +4,8 @@ source 'https://rubygems.org'
 gemspec
 
 group :development, :test do
-  gem 'rspec', '~> 3.0.0.beta'
+  gem 'rubyzip', '~> 1.2'
+  gem 'rspec', '~> 3'
   gem 'fog'
   gem 'carrierwave'
   gem 'paperclip'
