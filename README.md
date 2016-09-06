@@ -17,10 +17,13 @@ And then execute:
 
 ## Usage
 
-set up some models with [carrierwave](https://github.com/jnicklas/carrierwave) or [paperclip](https://github.com/thoughtbot/paperclip).
- Right now only plain file storage and S3 are supported in the case of [carrierwave](https://github.com/jnicklas/carrierwave) and only plain file storage, not S3 in the case of [paperclip](https://github.com/thoughtbot/paperclip). Alternatively, you can pass in plain old File objects. Not to be judgy, but plain old file objects are probably not the best option most of the time.
-
-You'll need to be using [unicorn](http://unicorn.bogomips.org/) or rainbows or some other server that supports streaming output.
+Set up some models with [carrierwave](https://github.com/jnicklas/carrierwave)
+or [paperclip](https://github.com/thoughtbot/paperclip).  Right now only plain
+file storage and S3 are supported in the case of
+[carrierwave](https://github.com/jnicklas/carrierwave) and only plain file
+storage and S3 are supported in the case of
+[paperclip](https://github.com/thoughtbot/paperclip).
+You'll need to be using puma or some other server that supports streaming output.
 
     class MyController < ApplicationController
       # enable streaming responses
@@ -29,7 +32,9 @@ You'll need to be using [unicorn](http://unicorn.bogomips.org/) or rainbows or s
       include Zipline
       
       def index
-        users= User.all
+        users = User.all
+        # you can replace user.avatar with any stream or any object that
+        # responds to :url
         files =  users.map{ |user| [user.avatar, "#{user.username}.png"] }
         zipline( files, 'avatars.zip')
       end

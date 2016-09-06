@@ -27,7 +27,7 @@ module Zipline
 
     def normalize(file)
       unless is_io?(file)
-        if file.respond_to?(:url) && (!defined?(::Paperclip::Attachment) || !file.is_a?(::Paperclip::Attachment))
+        if file.respond_to?(:url) || file.respond_to?(:expiring_url)
           file = file
         elsif file.respond_to? :file
           file = File.open(file.file)
@@ -41,18 +41,21 @@ module Zipline
     end
 
     def write_file(streamer, file, name)
-      streamer.add_stored_entry(name) do |writer_for_file|
-        if is_io?(file)
-          IO.copy_stream(file, writer_for_file)
-        else
-          the_remote_url = file.url(Time.now + 1.minutes)
+      streamer.write_stored_file(name) do |writer_for_file|
+        if file.respond_to?(:url) || file.respond_to?(:expiring_url)
+          # expiring_url seems needed for paperclip to work
+          the_remote_url = file.respond_to?(:expiring_url) ? file.expiring_url : file.url
           c = Curl::Easy.new(the_remote_url) do |curl|
             curl.on_body do |data|
               writer_for_file << data
               data.bytesize
             end
-          end
+	  end
           c.perform
+        elsif is_io?(file)
+          IO.copy_stream(file, writer_for_file)
+	else 
+          raise(ArgumentError, 'Bad File/Stream')
         end
       end
     end
