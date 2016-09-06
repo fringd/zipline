@@ -5,6 +5,8 @@ A gem to stream dynamically generated zip files from a rails application. Unlike
 - Removes need for large disk space or memory allocation to generate zips, even huge zips. So it works on Heroku.
 - The user begins downloading immediately, which decreaceses latency, download time, and timeouts on Heroku.
 
+Zipline now depends on [zip tricks](https://github.com/WeTransfer/zip_tricks), and you might want to just use that directly if you have more advanced use cases.
+
 ## Installation
 
 Add this line to your application's Gemfile:
