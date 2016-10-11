@@ -21,7 +21,6 @@ module Zipline
 
     def handle_file(streamer, file, name)
       file = normalize(file)
-      name = uniquify_name(name)
       write_file(streamer, file, name)
     end
 
@@ -50,11 +49,11 @@ module Zipline
               writer_for_file << data
               data.bytesize
             end
-	  end
+          end
           c.perform
         elsif is_io?(file)
           IO.copy_stream(file, writer_for_file)
-	else 
+        else
           raise(ArgumentError, 'Bad File/Stream')
         end
       end
@@ -62,42 +61,6 @@ module Zipline
 
     def is_io?(io_ish)
       io_ish.respond_to? :read
-    end
-
-    def uniquify_name(name)
-      @used_names ||= Set.new
-
-      if @used_names.include?(name)
-
-        #remove suffix e.g. ".foo"
-        parts = name.split '.'
-        name, extension =
-          if parts.length == 1
-            #no suffix, e.g. README
-            parts << ''
-          else
-            extension = parts.pop
-            [parts.join('.'), ".#{extension}"]
-          end
-
-        #trailing _#{number}
-        pattern = /_(\d+)$/
-
-        unless name.match pattern
-          name = "#{name}_1"
-        end
-
-        while @used_names.include? name + extension
-          #increment trailing number
-          name = name.sub( pattern ) { |x| "_#{$1.to_i + 1}" }
-        end
-
-        #reattach suffix
-        name += extension
-      end
-
-      @used_names << name
-      name
     end
   end
 end
