@@ -19,12 +19,12 @@ And then execute:
 
 ## Usage
 
-Set up some models with [carrierwave](https://github.com/jnicklas/carrierwave)
-or [paperclip](https://github.com/thoughtbot/paperclip).  Right now only plain
+Set up some models with [carrierwave](https://github.com/jnicklas/carrierwave), [paperclip](https://github.com/thoughtbot/paperclip), or [shrine](https://github.com/janko-m/shrine).  Right now only plain
 file storage and S3 are supported in the case of
 [carrierwave](https://github.com/jnicklas/carrierwave) and only plain file
 storage and S3 are supported in the case of
-[paperclip](https://github.com/thoughtbot/paperclip).
+[paperclip](https://github.com/thoughtbot/paperclip). [Mutiple file storages](http://shrinerb.com/#external) are supported with [shrine](https://github.com/janko-m/shrine).
+
 You'll need to be using puma or some other server that supports streaming output.
 
     class MyController < ApplicationController
