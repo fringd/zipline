@@ -68,4 +68,5 @@ To stream files from a remote URL, use open-uri with a [lazy enumerator](http://
 
 ## TODO (possible contributions?)
 
-* tests!
+* Add support for your favorite attachment plugin.
+* Tests.
