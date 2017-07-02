@@ -26,35 +26,52 @@ describe Zipline::ZipGenerator do
     context "CarrierWave" do
       context "Remote" do
         let(:file){ CarrierWave::Storage::Fog::File.new(nil,nil,nil) }
-        it "passes through" do
+        it "extracts the url" do
+          allow(file).to receive(:url).and_return('fakeurl')
           expect(File).not_to receive(:open)
-          expect(generator.normalize(file)).to be file
+          expect(generator.normalize(file)).to eq({url: 'fakeurl'})
         end
       end
       context "Local" do
         let(:file){ CarrierWave::SanitizedFile.new(Tempfile.new('t')) }
         it "creates a File" do
-          expect(generator.normalize(file)).to be_a File
+          allow(file).to receive(:path).and_return('spec/fakefile.txt')
+          normalized = generator.normalize(file)
+          expect(normalized.keys).to include(:file)
+          expect(normalized[:file]).to be_a File
         end
       end
     end
     context "Paperclip" do
-      let(:file){ Paperclip::Attachment.new(:name, :instance) }
-      it "creates a File" do
-        expect(File).to receive(:open).once
-        generator.normalize(file)
+      context "Local" do 
+        let(:file){ Paperclip::Attachment.new(:name, :instance) }
+        it "creates a File" do
+          allow(file).to receive(:path).and_return('spec/fakefile.txt')
+          normalized = generator.normalize(file)
+          expect(normalized.keys).to include(:file)
+          expect(normalized[:file]).to be_a File
+        end
+      end
+      context "Remote" do 
+        let(:file){ Paperclip::Attachment.new(:name, :instance, storage: :s3) }
+        it "creates a URL" do
+          allow(file).to receive(:expiring_url).and_return('fakeurl')
+          expect(File).to_not receive(:open)
+          expect(generator.normalize(file)).to include(url: 'fakeurl')
+        end
       end
     end
     context "Fog" do
-      it "passes through" do
+      it "extracts url" do
+        allow(file).to receive(:url).and_return('fakeurl')
         expect(File).not_to receive(:open)
-        expect(generator.normalize(file)).to be file
+        expect(generator.normalize(file)).to eq(url:  'fakeurl')
       end
     end
     context "IOStream" do
       let(:file){ StringIO.new('passthrough')}
       it "passes through" do
-        expect(generator.normalize(file)).to be file
+        expect(generator.normalize(file)).to eq(file: file)
       end
     end
     context "invalid" do

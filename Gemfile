@@ -7,6 +7,9 @@ group :development, :test do
   gem 'rubyzip', '~> 1.2'
   gem 'rspec', '~> 3'
   gem 'fog'
+  gem 'fog-aws'
+  gem 'activesupport'
+  gem 'aws-sdk'
   gem 'carrierwave'
   gem 'paperclip'
 end
