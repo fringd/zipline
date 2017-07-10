@@ -41,6 +41,30 @@ describe Zipline::ZipGenerator do
           expect(normalized[:file]).to be_a File
         end
       end
+      context "CarrierWave::Uploader::Base" do
+        let(:uploader) { Class.new(CarrierWave::Uploader::Base).new }
+
+        context "Remote" do
+          let(:file){ CarrierWave::Storage::Fog::File.new(nil,nil,nil) }
+          it "extracts the url" do
+            allow(uploader).to receive(:file).and_return(file)
+            allow(file).to receive(:url).and_return('fakeurl')
+            expect(File).not_to receive(:open)
+            expect(generator.normalize(uploader)).to eq({url: 'fakeurl'})
+          end
+        end
+
+        context "Local" do
+          let(:file){ CarrierWave::SanitizedFile.new(Tempfile.new('t')) }
+          it "creates a File" do
+            allow(uploader).to receive(:file).and_return(file)
+            allow(file).to receive(:path).and_return('spec/fakefile.txt')
+            normalized = generator.normalize(uploader)
+            expect(normalized.keys).to include(:file)
+            expect(normalized[:file]).to be_a File
+          end
+        end
+      end
     end
     context "Paperclip" do
       context "Local" do 

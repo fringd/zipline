@@ -28,6 +28,10 @@ module Zipline
     # Currently support carrierwave and paperclip local and remote storage.
     # returns a hash of the form {url: aUrl} or {file: anIoObject}
     def normalize(file)
+      if defined?(CarrierWave::Uploader::Base) && file.is_a?(CarrierWave::Uploader::Base)
+        file = file.file
+      end
+
       if defined?(Paperclip) && file.is_a?(Paperclip::Attachment)
         if file.options[:storage] == :filesystem
           {file: File.open(file.path)}
