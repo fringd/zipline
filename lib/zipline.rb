@@ -19,6 +19,6 @@ module Zipline
     response.sending_file = true
     response.cache_control[:public] ||= false
     self.response_body = zip_generator
-    self.response.headers['Last-Modified'] = Time.now.to_s
+    self.response.headers['Last-Modified'] = Time.now.httpdate
   end
 end
