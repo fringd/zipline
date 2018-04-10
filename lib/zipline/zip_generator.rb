@@ -68,6 +68,7 @@ module Zipline
           c.perform
         elsif file[:file]
           IO.copy_stream(file[:file], writer_for_file)
+          file[:file].close
         else
           raise(ArgumentError, 'Bad File/Stream')
         end
