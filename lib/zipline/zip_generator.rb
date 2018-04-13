@@ -42,6 +42,8 @@ module Zipline
         {url: file.url}
       elsif defined?(CarrierWave::SanitizedFile) && file.is_a?(CarrierWave::SanitizedFile)
         {file: File.open(file.path)}
+      elsif defined?(ActiveStorage::Blob) && file.is_a?(ActiveStorage::Blob)
+        {blob: file}
       elsif is_io?(file)
         {file: file}
       elsif file.respond_to? :url
@@ -69,6 +71,8 @@ module Zipline
         elsif file[:file]
           IO.copy_stream(file[:file], writer_for_file)
           file[:file].close
+        elsif file[:blob]
+          writer_for_file << file[:blob].download
         else
           raise(ArgumentError, 'Bad File/Stream')
         end
