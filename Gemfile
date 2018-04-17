@@ -12,4 +12,6 @@ group :development, :test do
   gem 'aws-sdk'
   gem 'carrierwave'
   gem 'paperclip'
+  gem 'rake'
+  gem 'rake-rspec'
 end
