@@ -2,8 +2,6 @@ require 'spec_helper'
 require 'tempfile'
 
 describe Zipline::ZipGenerator do
-  class ActiveStorage::Blob; end
-
   before { Fog.mock! }
   let(:file_attributes){ {
     key: 'fog_file_tests',
@@ -96,16 +94,14 @@ describe Zipline::ZipGenerator do
       let(:file) do
         f = double('ActiveStorage::Blob')
         allow(f).to receive(:filename).and_return(filename)
-        allow(f).to receive(:download).and_return(tempfile)
-        allow(f).to receive(:is_a?)
-        allow(f).to receive(:is_a?).with(ActiveStorage::Blob).and_return(true)
+        allow(f).to receive(:service_url).and_return('fakeurl')
         f
       end
       it "creates a File" do
         allow_any_instance_of(Object).to receive(:defined?).and_return(true)
         normalized = generator.normalize(file)
-        expect(normalized.keys).to include(:blob)
-        expect(normalized[:blob]).to eq(file)
+        expect(normalized.keys).to include(:url)
+        expect(normalized[:url]).to eq('fakeurl')
       end
     end
     context "Fog" do
