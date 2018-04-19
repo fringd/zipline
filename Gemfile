@@ -4,7 +4,6 @@ source 'https://rubygems.org'
 gemspec
 
 group :development, :test do
-  gem 'rubyzip', '~> 1.2'
   gem 'rspec', '~> 3'
   gem 'fog'
   gem 'fog-aws'
