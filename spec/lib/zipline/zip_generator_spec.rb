@@ -85,14 +85,19 @@ describe Zipline::ZipGenerator do
       end
     end
     context "ActiveStorage::Blob" do
+      module ActiveStorage
+        class Filename; end
+        class Blob; end
+      end
+
       let(:tempfile){ Tempfile.new('t').read }
       let(:filename) do
-        fn = double('ActiveStorage::Filename')
+        fn = ActiveStorage::Filename.new()
         allow(fn).to receive(:to_s).and_return('spec/fakefile.txt')
         fn
       end
       let(:file) do
-        f = double('ActiveStorage::Blob')
+        f = ActiveStorage::Blob.new()
         allow(f).to receive(:filename).and_return(filename)
         allow(f).to receive(:service_url).and_return('fakeurl')
         f

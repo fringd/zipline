@@ -44,7 +44,7 @@ module Zipline
         {file: File.open(file.path)}
       elsif is_io?(file)
         {file: file}
-      elsif file.respond_to? :service_url
+      elsif defined?(ActiveStorage::Blob) && file.is_a?(ActiveStorage::Blob)
         {url: file.service_url}
       elsif file.respond_to? :url
         {url: file.url}
@@ -71,8 +71,6 @@ module Zipline
         elsif file[:file]
           IO.copy_stream(file[:file], writer_for_file)
           file[:file].close
-        elsif file[:blob]
-          writer_for_file << file[:blob].download
         else
           raise(ArgumentError, 'Bad File/Stream')
         end
