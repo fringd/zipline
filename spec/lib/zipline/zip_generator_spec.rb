@@ -2,7 +2,6 @@ require 'spec_helper'
 require 'tempfile'
 
 describe Zipline::ZipGenerator do
-
   before { Fog.mock! }
   let(:file_attributes){ {
     key: 'fog_file_tests',
@@ -67,7 +66,7 @@ describe Zipline::ZipGenerator do
       end
     end
     context "Paperclip" do
-      context "Local" do 
+      context "Local" do
         let(:file){ Paperclip::Attachment.new(:name, :instance) }
         it "creates a File" do
           allow(file).to receive(:path).and_return('spec/fakefile.txt')
@@ -76,13 +75,38 @@ describe Zipline::ZipGenerator do
           expect(normalized[:file]).to be_a File
         end
       end
-      context "Remote" do 
+      context "Remote" do
         let(:file){ Paperclip::Attachment.new(:name, :instance, storage: :s3) }
         it "creates a URL" do
           allow(file).to receive(:expiring_url).and_return('fakeurl')
           expect(File).to_not receive(:open)
           expect(generator.normalize(file)).to include(url: 'fakeurl')
         end
+      end
+    end
+    context "ActiveStorage::Blob" do
+      module ActiveStorage
+        class Filename; end
+        class Blob; end
+      end
+
+      let(:tempfile){ Tempfile.new('t').read }
+      let(:filename) do
+        fn = ActiveStorage::Filename.new()
+        allow(fn).to receive(:to_s).and_return('spec/fakefile.txt')
+        fn
+      end
+      let(:file) do
+        f = ActiveStorage::Blob.new()
+        allow(f).to receive(:filename).and_return(filename)
+        allow(f).to receive(:service_url).and_return('fakeurl')
+        f
+      end
+      it "creates a File" do
+        allow_any_instance_of(Object).to receive(:defined?).and_return(true)
+        normalized = generator.normalize(file)
+        expect(normalized.keys).to include(:url)
+        expect(normalized[:url]).to eq('fakeurl')
       end
     end
     context "Fog" do
