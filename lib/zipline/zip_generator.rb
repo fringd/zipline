@@ -42,12 +42,12 @@ module Zipline
         {url: file.url}
       elsif defined?(CarrierWave::SanitizedFile) && file.is_a?(CarrierWave::SanitizedFile)
         {file: File.open(file.path)}
+      elsif file.respond_to? :url
+        {url: file.url}
       elsif is_io?(file)
         {file: file}
       elsif defined?(ActiveStorage::Blob) && file.is_a?(ActiveStorage::Blob)
         {url: file.service_url}
-      elsif file.respond_to? :url
-        {url: file.url}
       elsif file.respond_to? :path
         {file: File.open(file.path)}
       elsif file.respond_to? :file
