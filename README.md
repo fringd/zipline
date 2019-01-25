@@ -19,7 +19,7 @@ And then execute:
 
 ## Usage
 
-Set up some models with [ActiveStorage](http://edgeguides.rubyonrails.org/active_storage_overview.html)
+Set up some models with [ActiveStorage](http://edgeguides.rubyonrails.org/active_storage_overview.html),
 [carrierwave](https://github.com/jnicklas/carrierwave), [paperclip](https://github.com/thoughtbot/paperclip), or
 [shrine](https://github.com/janko-m/shrine). Right now only plain file storage and S3 are supported in the case of
 [carrierwave](https://github.com/jnicklas/carrierwave) and only plain file storage and S3 are supported in the case of
@@ -29,17 +29,15 @@ supported with [shrine](https://github.com/janko-m/shrine).
 You'll need to be using puma or some other server that supports streaming output.
 
     class MyController < ApplicationController
-      # enable streaming responses
-      include ActionController::Streaming
-      # enable zipline
-      include Zipline
+      include ActionController::Streaming # enable streaming responses
+      include Zipline # enable zipline
       
       def index
         users = User.all
         # you can replace user.avatar with any stream or any object that
         # responds to :url
-        files =  users.map{ |user| [user.avatar, "#{user.username}.png"] }
-        zipline( files, 'avatars.zip')
+        files = users.map{ |user| [user.avatar.blob, "#{user.username}.png"] }
+        zipline(files, 'avatars.zip')
       end
     end
 
