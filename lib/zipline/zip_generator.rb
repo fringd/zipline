@@ -46,6 +46,8 @@ module Zipline
         {file: file}
       elsif defined?(ActiveStorage::Blob) && file.is_a?(ActiveStorage::Blob)
         {url: file.service_url}
+      elsif defined?(ActiveStorage::Attachment) && file.is_a?(ActiveStorage::Attachment)
+        {url: file.blob.service_url}
       elsif file.respond_to? :url
         {url: file.url}
       elsif file.respond_to? :path
