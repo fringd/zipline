@@ -7,7 +7,6 @@ require 'paperclip'
 require 'fog'
 require 'fog-aws'
 require 'carrierwave'
-require 'pry'
 
 Dir["#{File.expand_path('..', __FILE__)}/support/**/*.rb"].each { |f| require f }
 

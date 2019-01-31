@@ -103,7 +103,7 @@ describe Zipline::ZipGenerator do
       end
 
       def create_attachment
-        attachment = ActiveStorage::Attached::One
+        attachment = ActiveStorage::Attached::One.new
         blob = ActiveStorage::Blob.new
         allow(blob).to receive(:service_url).and_return('fakeurl')
         allow(attachment).to receive(:blob).and_return(blob)
