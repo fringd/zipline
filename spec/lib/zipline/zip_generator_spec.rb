@@ -84,29 +84,30 @@ describe Zipline::ZipGenerator do
         end
       end
     end
-    context "ActiveStorage::Blob" do
+    context "ActiveStorage" do
       module ActiveStorage
-        class Filename; end
+        module Attached
+          class One; end
+        end
         class Blob; end
       end
 
-      let(:tempfile){ Tempfile.new('t').read }
-      let(:filename) do
-        fn = ActiveStorage::Filename.new()
-        allow(fn).to receive(:to_s).and_return('spec/fakefile.txt')
-        fn
-      end
-      let(:file) do
-        f = ActiveStorage::Blob.new()
-        allow(f).to receive(:filename).and_return(filename)
-        allow(f).to receive(:service_url).and_return('fakeurl')
-        f
-      end
-      it "creates a File" do
+      it "extracts url" do
+        attachment = create_attachment
         allow_any_instance_of(Object).to receive(:defined?).and_return(true)
-        normalized = generator.normalize(file)
+
+        normalized = generator.normalize(attachment)
+
         expect(normalized.keys).to include(:url)
         expect(normalized[:url]).to eq('fakeurl')
+      end
+
+      def create_attachment
+        attachment = ActiveStorage::Attached::One
+        blob = ActiveStorage::Blob.new
+        allow(blob).to receive(:service_url).and_return('fakeurl')
+        allow(attachment).to receive(:blob).and_return(blob)
+        attachment
       end
     end
     context "Fog" do

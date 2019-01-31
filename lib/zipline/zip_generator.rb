@@ -44,8 +44,8 @@ module Zipline
         {file: File.open(file.path)}
       elsif is_io?(file)
         {file: file}
-      elsif defined?(ActiveStorage::Blob) && file.is_a?(ActiveStorage::Blob)
-        {url: file.service_url}
+      elsif defined?(ActiveStorage::Blob) && file.respond_to?(:blob) && file.blob.is_a?(ActiveStorage::Blob)
+        {url: file.blob.service_url}
       elsif file.respond_to? :url
         {url: file.url}
       elsif file.respond_to? :path

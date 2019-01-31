@@ -13,4 +13,5 @@ group :development, :test do
   gem 'paperclip'
   gem 'rake'
   gem 'rake-rspec'
+  gem 'pry'
 end
