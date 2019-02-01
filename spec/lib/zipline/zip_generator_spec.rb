@@ -86,8 +86,9 @@ describe Zipline::ZipGenerator do
     end
     context "ActiveStorage" do
       module ActiveStorage
-        module Attached
-          class One; end
+        class Attached
+          class One < Attached
+          end
         end
         class Blob; end
       end
@@ -102,12 +103,29 @@ describe Zipline::ZipGenerator do
         expect(normalized[:url]).to eq('fakeurl')
       end
 
+      context "Blob" do
+        it "extracts url" do
+          blob = create_blob
+          allow_any_instance_of(Object).to receive(:defined?).and_return(true)
+
+          normalized = generator.normalize(blob)
+
+          expect(normalized.keys).to include(:url)
+          expect(normalized[:url]).to eq('fakeurl')
+        end
+      end
+
       def create_attachment
         attachment = ActiveStorage::Attached::One.new
-        blob = ActiveStorage::Blob.new
-        allow(blob).to receive(:service_url).and_return('fakeurl')
+        blob = create_blob
         allow(attachment).to receive(:blob).and_return(blob)
         attachment
+      end
+
+      def create_blob
+        blob = ActiveStorage::Blob.new
+        allow(blob).to receive(:service_url).and_return('fakeurl')
+        blob
       end
     end
     context "Fog" do
