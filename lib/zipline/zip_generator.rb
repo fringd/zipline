@@ -46,7 +46,7 @@ module Zipline
         {file: file}
       elsif defined?(ActiveStorage::Blob) && file.is_a?(ActiveStorage::Blob)
         {url: file.service_url}
-      elsif defined?(ActiveStorage::Attached) && file.is_a?(ActiveStorage::Attached)
+      elsif is_active_storage_attachment?(file) || is_active_storage_one?(file)
         {url: file.blob.service_url}
       elsif file.respond_to? :url
         {url: file.url}
@@ -81,6 +81,16 @@ module Zipline
 
     def is_io?(io_ish)
       io_ish.respond_to? :read
+    end
+
+    private
+
+    def is_active_storage_attachment?(file)
+      defined?(ActiveStorage::Attachment) && file.is_a?(ActiveStorage::Attachment)
+    end
+
+    def is_active_storage_one?(file)
+      defined?(ActiveStorage::Attached::One) && file.is_a?(ActiveStorage::Attached::One)
     end
   end
 end
