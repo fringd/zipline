@@ -84,29 +84,70 @@ describe Zipline::ZipGenerator do
         end
       end
     end
-    context "ActiveStorage::Blob" do
+    context "ActiveStorage" do
       module ActiveStorage
-        class Filename; end
+        class Attached
+          class One < Attached
+          end
+        end
+        class Attachment; end
         class Blob; end
       end
 
-      let(:tempfile){ Tempfile.new('t').read }
-      let(:filename) do
-        fn = ActiveStorage::Filename.new()
-        allow(fn).to receive(:to_s).and_return('spec/fakefile.txt')
-        fn
+      context "Attached::One" do
+        it "extracts url" do
+          attached = create_attached_one
+          allow_any_instance_of(Object).to receive(:defined?).and_return(true)
+
+          normalized = generator.normalize(attached)
+
+          expect(normalized.keys).to include(:url)
+          expect(normalized[:url]).to eq('fakeurl')
+        end
       end
-      let(:file) do
-        f = ActiveStorage::Blob.new()
-        allow(f).to receive(:filename).and_return(filename)
-        allow(f).to receive(:service_url).and_return('fakeurl')
-        f
+
+      context "Attachment" do
+        it "extracts url" do
+          attachment = create_attachment
+          allow_any_instance_of(Object).to receive(:defined?).and_return(true)
+
+          normalized = generator.normalize(attachment)
+
+          expect(normalized.keys).to include(:url)
+          expect(normalized[:url]).to eq('fakeurl')
+        end
       end
-      it "creates a File" do
-        allow_any_instance_of(Object).to receive(:defined?).and_return(true)
-        normalized = generator.normalize(file)
-        expect(normalized.keys).to include(:url)
-        expect(normalized[:url]).to eq('fakeurl')
+
+      context "Blob" do
+        it "extracts url" do
+          blob = create_blob
+          allow_any_instance_of(Object).to receive(:defined?).and_return(true)
+
+          normalized = generator.normalize(blob)
+
+          expect(normalized.keys).to include(:url)
+          expect(normalized[:url]).to eq('fakeurl')
+        end
+      end
+
+      def create_attached_one
+        attached = ActiveStorage::Attached::One.new
+        blob = create_blob
+        allow(attached).to receive(:blob).and_return(blob)
+        attached
+      end
+
+      def create_attachment
+        attachment = ActiveStorage::Attachment.new
+        blob = create_blob
+        allow(attachment).to receive(:blob).and_return(blob)
+        attachment
+      end
+
+      def create_blob
+        blob = ActiveStorage::Blob.new
+        allow(blob).to receive(:service_url).and_return('fakeurl')
+        blob
       end
     end
     context "Fog" do
