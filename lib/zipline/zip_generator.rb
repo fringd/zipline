@@ -15,13 +15,13 @@ module Zipline
     def each(&block)
       fake_io_writer = ZipTricks::BlockWrite.new(&block)
       ZipTricks::Streamer.open(fake_io_writer) do |streamer|
-        @files.each {|file, name| handle_file(streamer, file, name) }
+        @files.each { |file, name, mtime| handle_file(streamer, file, name, mtime) }
       end
     end
 
-    def handle_file(streamer, file, name)
+    def handle_file(streamer, file, name, mtime)
       file = normalize(file)
-      write_file(streamer, file, name)
+      write_file(streamer, file, name, mtime)
     end
 
     # This extracts either a url or a local file from the provided file.
@@ -59,8 +59,10 @@ module Zipline
       end
     end
 
-    def write_file(streamer, file, name)
-      streamer.write_deflated_file(name) do |writer_for_file|
+    def write_file(streamer, file, name, mtime)
+      mtime = mtime.nil? ? Time.now.utc : mtime
+
+      streamer.write_deflated_file(name, modification_time: mtime) do |writer_for_file|
         if file[:url]
           the_remote_url = file[:url]
           c = Curl::Easy.new(the_remote_url) do |curl|
