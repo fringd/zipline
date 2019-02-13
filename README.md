@@ -1,4 +1,6 @@
 # Zipline
+[![Build Status](https://travis-ci.org/fringd/zipline.svg?branch=master)](https://travis-ci.org/fringd/zipline)
+[![Gem Version](https://badge.fury.io/rb/zipline.svg)](https://badge.fury.io/rb/zipline)
 
 A gem to stream dynamically generated zip files from a rails application. Unlike other solutions that generate zips for user download, zipline does not wait for the entire zip file to be created (or even for the entire input file in the cloud to be downloaded) before it begins sending the zip file to the user. It does this by never seeking backwards during zip creation, and streaming the zip file over http as it is constructed. The advantages of this are:
 
