@@ -6,9 +6,9 @@ require "zipline/zip_generator"
 # class MyController < ApplicationController
 #   include Zipline
 #   def index
-#     users= User.all
-#     files =  users.map{ |user| [user.avatar, "#{user.username}.png"] }
-#     zipline( files, 'avatars.zip')
+#     users = User.all
+#     files = users.map{ |user| [user.avatar, "#{user.username}.png", modification_time: 1.day.ago] }
+#     zipline(files, 'avatars.zip')
 #   end
 # end
 module Zipline

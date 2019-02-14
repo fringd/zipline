@@ -28,37 +28,42 @@ supported with [shrine](https://github.com/janko-m/shrine).
 
 You'll need to be using puma or some other server that supports streaming output.
 
-    class MyController < ApplicationController
-      # enable streaming responses
-      include ActionController::Streaming
-      # enable zipline
-      include Zipline
-      
-      def index
-        users = User.all
-        # you can replace user.avatar with any stream or any object that
-        # responds to :url
-        files =  users.map{ |user| [user.avatar, "#{user.username}.png"] }
-        zipline( files, 'avatars.zip')
-      end
-    end
+```Ruby
+class MyController < ApplicationController
+  # enable streaming responses
+  include ActionController::Streaming
+  # enable zipline
+  include Zipline
+
+  def index
+    users = User.all
+    # you can replace user.avatar with any stream or any object that
+    # responds to :url.
+    # :modification_time is an optional third argument you can use.
+    files =  users.map{ |user| [user.avatar, "#{user.username}.png", modification_time: 1.day.ago] }
+    zipline(files, 'avatars.zip')
+  end
+end
+```
 
 For directories, just give the files names like "directory/file".
 
 To stream files from a remote URL, use open-uri with a [lazy enumerator](http://ruby-doc.org/core-2.0.0/Enumerator/Lazy.html):
 
-    require 'open-uri'
-    avatars = [
-      # remote_url                          zip_path
-      [ 'http://www.example.com/user1.png', 'avatars/user1.png' ]
-      [ 'http://www.example.com/user2.png', 'avatars/user2.png' ]
-      [ 'http://www.example.com/user3.png', 'avatars/user3.png' ]
-    ]
-    file_mappings = avatars
-      .lazy  # Lazy allows us to begin sending the download immediately instead of waiting to download everything
-      .map { |url, path| [open(url), path] }
-    zipline(file_mappings, 'avatars.zip')
-    
+```Ruby
+require 'open-uri'
+avatars = [
+  # remote_url                          zip_path
+  [ 'http://www.example.com/user1.png', 'avatars/user1.png', modification_time: Time.now.utc ]
+  [ 'http://www.example.com/user2.png', 'avatars/user2.png', modification_time: 1.day.ago ]
+  [ 'http://www.example.com/user3.png', 'avatars/user3.png' ]
+]
+file_mappings = avatars
+  .lazy  # Lazy allows us to begin sending the download immediately instead of waiting to download everything
+  .map { |url, path| [open(url), path] }
+zipline(file_mappings, 'avatars.zip')
+```
+
 ## Contributing
 
 1. Fork it
