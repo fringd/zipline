@@ -171,4 +171,46 @@ describe Zipline::ZipGenerator do
     end
   end
 
+  describe 'passing an options hash' do
+    let(:file) { StringIO.new('passthrough') }
+
+    context 'with optional arguments' do
+      let(:mtime) { 1.day.ago }
+      let(:generator) do
+        Zipline::ZipGenerator.new([[file, 'test', modification_time: mtime]])
+      end
+
+      it 'passes the options hash through handle_file' do
+        expect(generator).to receive(:handle_file)
+          .with(anything, anything, anything, modification_time: mtime)
+        generator.each { |_| 'Test' }
+      end
+
+      it 'passes the options hash to ZipTricks' do
+        allow(file).to receive(:url).and_return('fakeurl')
+        expect_any_instance_of(ZipTricks::Streamer).to receive(:write_deflated_file)
+          .with(anything, modification_time: mtime)
+        generator.each { |_| 'Test' }
+      end
+    end
+
+    context 'without optional arguments' do
+      let(:generator) do
+        Zipline::ZipGenerator.new([[file, 'test']])
+      end
+
+      it 'passes the options hash through handle_file' do
+        expect(generator).to receive(:handle_file)
+          .with(anything, anything, anything, {})
+        generator.each { |_| 'Test' }
+      end
+
+      it 'passes the options hash to ZipTricks' do
+        allow(file).to receive(:url).and_return('fakeurl')
+        expect_any_instance_of(ZipTricks::Streamer).to receive(:write_deflated_file)
+          .with(anything, {})
+        generator.each { |_| 'Test' }
+      end
+    end
+  end
 end

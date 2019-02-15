@@ -15,11 +15,13 @@ module Zipline
     def each(&block)
       fake_io_writer = ZipTricks::BlockWrite.new(&block)
       ZipTricks::Streamer.open(fake_io_writer) do |streamer|
-        @files.each { |file, name, mtime| handle_file(streamer, file, name, modification_time: mtime) }
+        @files.each do |file, name, options = {}|
+          handle_file(streamer, file, name, options)
+        end
       end
     end
 
-    def handle_file(streamer, file, name, options = {})
+    def handle_file(streamer, file, name, options)
       file = normalize(file)
       write_file(streamer, file, name, options)
     end
