@@ -62,7 +62,7 @@ avatars = [
 ]
 file_mappings = avatars
   .lazy  # Lazy allows us to begin sending the download immediately instead of waiting to download everything
-  .map { |url, path| [open(url), path] }
+  .map { |url, path, options| [open(url), path, options] }
 zipline(file_mappings, 'avatars.zip')
 ```
 
