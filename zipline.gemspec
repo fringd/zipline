@@ -17,5 +17,4 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency 'zip_tricks', ['>= 4.2.1', '<= 5.0.0']
   gem.add_dependency 'rails', ['>= 3.2.1', '< 6.1']
-  gem.add_dependency 'curb', ['>= 0.8.0', '< 0.10']
 end
