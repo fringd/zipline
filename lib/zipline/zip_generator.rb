@@ -56,6 +56,8 @@ module Zipline
         {file: File.open(file.path)}
       elsif file.respond_to? :file
         {file: File.open(file.file)}
+      elsif is_url?(file)
+        {url: file}
       else
         raise(ArgumentError, 'Bad File/Stream')
       end
@@ -64,14 +66,13 @@ module Zipline
     def write_file(streamer, file, name, options)
       streamer.write_deflated_file(name, options) do |writer_for_file|
         if file[:url]
-          the_remote_url = file[:url]
-          c = Curl::Easy.new(the_remote_url) do |curl|
-            curl.on_body do |data|
-              writer_for_file << data
-              data.bytesize
+          the_remote_uri = URI(file[:url])
+
+          Net::HTTP.get_response(the_remote_uri) do |response|
+            response.read_body do |chunk|
+              writer_for_file << chunk
             end
           end
-          c.perform
         elsif file[:file]
           IO.copy_stream(file[:file], writer_for_file)
           file[:file].close
@@ -93,6 +94,11 @@ module Zipline
 
     def is_active_storage_one?(file)
       defined?(ActiveStorage::Attached::One) && file.is_a?(ActiveStorage::Attached::One)
+    end
+
+    def is_url?(url)
+      url = URI.parse(url) rescue false
+      url.kind_of?(URI::HTTP) || url.kind_of?(URI::HTTPS)
     end
   end
 end
