@@ -53,16 +53,13 @@ For directories, just give the files names like "directory/file".
 To stream files from a remote URL, use open-uri with a [lazy enumerator](http://ruby-doc.org/core-2.0.0/Enumerator/Lazy.html):
 
 ```Ruby
-require 'open-uri'
 avatars = [
-  # remote_url                          zip_path
+  # remote_url                          zip_path             zip_tricks_options
   [ 'http://www.example.com/user1.png', 'avatars/user1.png', modification_time: Time.now.utc ]
   [ 'http://www.example.com/user2.png', 'avatars/user2.png', modification_time: 1.day.ago ]
   [ 'http://www.example.com/user3.png', 'avatars/user3.png' ]
 ]
-file_mappings = avatars
-  .lazy  # Lazy allows us to begin sending the download immediately instead of waiting to download everything
-  .map { |url, path, options| [open(url), path, options] }
+
 zipline(file_mappings, 'avatars.zip')
 ```
 
