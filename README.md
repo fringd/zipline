@@ -50,8 +50,8 @@ end
 
 For directories, just give the files names like "directory/file".
 
-To stream files from a remote URL, use open-uri with a [lazy enumerator](http://ruby-doc.org/core-2.0.0/Enumerator/Lazy.html):
-
+If you know the URL of the remote file you want to include, you can just pass in the
+URL directly in place of the attachment object.
 ```Ruby
 avatars = [
   # remote_url                          zip_path             zip_tricks_options
