@@ -60,7 +60,7 @@ avatars = [
   [ 'http://www.example.com/user3.png', 'avatars/user3.png' ]
 ]
 
-zipline(file_mappings, 'avatars.zip')
+zipline(avatars, 'avatars.zip')
 ```
 
 ## Contributing
