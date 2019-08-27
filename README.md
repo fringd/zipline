@@ -38,18 +38,56 @@ class MyController < ApplicationController
   def index
     users = User.all
     # you can replace user.avatar with any stream or any object that
-    # responds to :url.
+    # responds to :url, :path or :file.
     # :modification_time is an optional third argument you can use.
-    files =  users.map{ |user| [user.avatar, "#{user.username}.png", modification_time: 1.day.ago] }
+    files = users.map{ |user| [user.avatar, "#{user.username}.png", modification_time: 1.day.ago] }
     zipline(files, 'avatars.zip')
   end
 end
 ```
 
-For directories, just give the files names like "directory/file".
+### ActiveStorage
+
+```Ruby
+users = User.all
+files = users.map{ |user| [user.avatar, user.avatar.filename] }
+zipline(files, 'avatars.zip')
+```
+
+### Carrierwave
+
+```Ruby
+users = User.all
+files = users.map{ |user| [user.avatar, user.avatar_identifier] }
+zipline(files, 'avatars.zip')
+```
+
+### Paperclip ([deprecated](https://thoughtbot.com/blog/closing-the-trombone))
+
+```Ruby
+users = User.all
+files = users.map{ |user| [user.avatar, user.avatar_file_name] }
+zipline(files, 'avatars.zip')
+```
+
+### Url
 
 If you know the URL of the remote file you want to include, you can just pass in the
 URL directly in place of the attachment object.
+```Ruby
+avatars = [
+  ['http://www.example.com/user1.png', 'user1.png']
+  ['http://www.example.com/user2.png', 'user2.png']
+  ['http://www.example.com/user3.png', 'user3.png']
+]
+zipline(avatars, 'avatars.zip')
+```
+
+### Directories
+
+For directories, just give the files names like "directory/file".
+
+
 ```Ruby
 avatars = [
   # remote_url                          zip_path             zip_tricks_options
