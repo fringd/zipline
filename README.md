@@ -32,8 +32,6 @@ You'll need to be using puma or some other server that supports streaming output
 
 ```Ruby
 class MyController < ApplicationController
-  # enable streaming responses
-  include ActionController::Streaming
   # enable zipline
   include Zipline
 
