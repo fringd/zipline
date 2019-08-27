@@ -47,9 +47,9 @@ module Zipline
       elsif is_io?(file)
         {file: file}
       elsif defined?(ActiveStorage::Blob) && file.is_a?(ActiveStorage::Blob)
-        {url: file.service_url}
+        {blob: file}
       elsif is_active_storage_attachment?(file) || is_active_storage_one?(file)
-        {url: file.blob.service_url}
+        {blob: file.blob}
       elsif file.respond_to? :url
         {url: file.url}
       elsif file.respond_to? :path
@@ -76,6 +76,8 @@ module Zipline
         elsif file[:file]
           IO.copy_stream(file[:file], writer_for_file)
           file[:file].close
+        elsif file[:blob]
+          file[:blob].download { |chunk| writer_for_file << chunk }
         else
           raise(ArgumentError, 'Bad File/Stream')
         end
