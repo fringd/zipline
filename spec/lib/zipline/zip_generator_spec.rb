@@ -95,38 +95,38 @@ describe Zipline::ZipGenerator do
       end
 
       context "Attached::One" do
-        it "extracts url" do
+        it "get blob" do
           attached = create_attached_one
           allow_any_instance_of(Object).to receive(:defined?).and_return(true)
 
           normalized = generator.normalize(attached)
 
-          expect(normalized.keys).to include(:url)
-          expect(normalized[:url]).to eq('fakeurl')
+          expect(normalized.keys).to include(:blob)
+          expect(normalized[:blob]).to be_a(ActiveStorage::Blob)
         end
       end
 
       context "Attachment" do
-        it "extracts url" do
+        it "get blob" do
           attachment = create_attachment
           allow_any_instance_of(Object).to receive(:defined?).and_return(true)
 
           normalized = generator.normalize(attachment)
 
-          expect(normalized.keys).to include(:url)
-          expect(normalized[:url]).to eq('fakeurl')
+          expect(normalized.keys).to include(:blob)
+          expect(normalized[:blob]).to be_a(ActiveStorage::Blob)
         end
       end
 
       context "Blob" do
-        it "extracts url" do
+        it "get blob" do
           blob = create_blob
           allow_any_instance_of(Object).to receive(:defined?).and_return(true)
 
           normalized = generator.normalize(blob)
 
-          expect(normalized.keys).to include(:url)
-          expect(normalized[:url]).to eq('fakeurl')
+          expect(normalized.keys).to include(:blob)
+          expect(normalized[:blob]).to be_a(ActiveStorage::Blob)
         end
       end
 
