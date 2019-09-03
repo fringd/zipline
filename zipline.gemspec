@@ -14,6 +14,7 @@ Gem::Specification.new do |gem|
   gem.name          = "zipline"
   gem.require_paths = ["lib"]
   gem.version       = Zipline::VERSION
+  gem.licenses      = ['MIT']
 
   gem.add_dependency 'zip_tricks', ['>= 4.2.1', '<= 5.0.0']
   gem.add_dependency 'rails', ['>= 3.2.1', '< 6.1']
