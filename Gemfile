@@ -11,5 +11,4 @@ group :development, :test do
   gem 'carrierwave'
   gem 'paperclip'
   gem 'rake'
-  gem 'rake-rspec'
 end
