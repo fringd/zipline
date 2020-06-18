@@ -2,9 +2,7 @@ require 'rspec'
 require 'active_support'
 require 'active_support/core_ext'
 require 'zipline'
-require 'aws-sdk'
 require 'paperclip'
-require 'fog'
 require 'fog-aws'
 require 'carrierwave'
 
@@ -20,8 +18,6 @@ CarrierWave.configure do |config|
 	}
 
 end
-
-
 
 RSpec.configure do |config|
   config.color = true
