@@ -2,6 +2,8 @@
 # initialize it with an array of the files you want to zip
 module Zipline
   class ZipGenerator
+    WRITE_BUFFER_SIZE = 16 * 1024
+
     # takes an array of pairs [[uploader, filename], ... ]
     def initialize(files)
       @files = files
@@ -14,11 +16,26 @@ module Zipline
 
     def each(&block)
       fake_io_writer = ZipTricks::BlockWrite.new(&block)
-      ZipTricks::Streamer.open(fake_io_writer) do |streamer|
+      # ZipTricks outputs lots of strings in rapid succession, and with
+      # servers it can be beneficial to avoid doing too many tiny writes so that
+      # the number of syscalls is minimized. See https://github.com/WeTransfer/zip_tricks/issues/78
+      # There is a built-in facility for this in ZipTricks which can be used to implement
+      # some cheap buffering here (it exists both in version 4 and version 5). The buffer is really
+      # tiny and roughly equal to the medium Linux socket buffer size (16 KB). Although output
+      # will be not so immediate with this buffering the overall performance will be better,
+      # especially with multiple clients being serviced at the same time.
+      # Note that the WriteBuffer writes the same, retained String object - but the contents
+      # of that object changes between calls. This should work fine with servers (where the)
+      # contents of the string gets written to a socket immediately before the execution inside
+      # the WriteBuffer resumes), but if the strings get retained somewhere - like in an Array -
+      # this might pose a problem. Unlikely that it will be an issue here though.
+      write_buffer = ZipTricks::WriteBuffer.new(fake_io_writer, WRITE_BUFFER_SIZE)
+      ZipTricks::Streamer.open(write_buffer) do |streamer|
         @files.each do |file, name, options = {}|
           handle_file(streamer, file, name, options)
         end
       end
+      write_buffer.flush! # for any remaining writes
     end
 
     def handle_file(streamer, file, name, options)
