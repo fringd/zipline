@@ -2,8 +2,6 @@
 # initialize it with an array of the files you want to zip
 module Zipline
   class ZipGenerator
-    WRITE_BUFFER_SIZE = 16 * 1024
-
     # takes an array of pairs [[uploader, filename], ... ]
     def initialize(files)
       @files = files
@@ -25,11 +23,12 @@ module Zipline
       # will be not so immediate with this buffering the overall performance will be better,
       # especially with multiple clients being serviced at the same time.
       # Note that the WriteBuffer writes the same, retained String object - but the contents
-      # of that object changes between calls. This should work fine with servers (where the)
+      # of that object changes between calls. This should work fine with servers where the
       # contents of the string gets written to a socket immediately before the execution inside
       # the WriteBuffer resumes), but if the strings get retained somewhere - like in an Array -
       # this might pose a problem. Unlikely that it will be an issue here though.
-      write_buffer = ZipTricks::WriteBuffer.new(fake_io_writer, WRITE_BUFFER_SIZE)
+      write_buffer_size = 16 * 1024
+      write_buffer = ZipTricks::WriteBuffer.new(fake_io_writer, write_buffer_size)
       ZipTricks::Streamer.open(write_buffer) do |streamer|
         @files.each do |file, name, options = {}|
           handle_file(streamer, file, name, options)
