@@ -161,6 +161,7 @@ describe Zipline::ZipGenerator do
       end
 
       def create_filename
+        # Rails wraps Blob#filname in this class since Rails 5.2
         ActiveStorage::Filename.new('test')
       end
     end
