@@ -1,6 +1,23 @@
 require 'spec_helper'
 require 'tempfile'
 
+module ActiveStorage
+  class Attached
+    class One < Attached
+    end
+  end
+  class Attachment; end
+  class Blob; end
+  class Filename
+    def initialize(name)
+      @name = name
+    end
+    def to_s
+      @name
+    end
+  end
+end
+
 describe Zipline::ZipGenerator do
   before { Fog.mock! }
   let(:file_attributes){ {
@@ -85,15 +102,6 @@ describe Zipline::ZipGenerator do
       end
     end
     context "ActiveStorage" do
-      module ActiveStorage
-        class Attached
-          class One < Attached
-          end
-        end
-        class Attachment; end
-        class Blob; end
-      end
-
       context "Attached::One" do
         it "get blob" do
           attached = create_attached_one
@@ -147,7 +155,13 @@ describe Zipline::ZipGenerator do
       def create_blob
         blob = ActiveStorage::Blob.new
         allow(blob).to receive(:service_url).and_return('fakeurl')
+        filename = create_filename
+        allow(blob).to receive(:filename).and_return(filename)
         blob
+      end
+
+      def create_filename
+        ActiveStorage::Filename.new('test')
       end
     end
     context "Fog" do
@@ -167,6 +181,25 @@ describe Zipline::ZipGenerator do
       let(:file){ Thread.new{} }
       it "raises error" do
         expect{generator.normalize(file)}.to raise_error(ArgumentError)
+      end
+    end
+  end
+
+  describe '.write_file' do
+    let(:file) { StringIO.new('passthrough') }
+
+    context 'when passing an ActiveStorage::Filename object as filename' do
+      let(:filename) { ActiveStorage::Filename.new('test') }
+
+      let(:generator) do
+        Zipline::ZipGenerator.new([[file, filename]])
+      end
+
+      it 'passes a string as filename to ZipTricks' do
+        allow(file).to receive(:url).and_return('fakeurl')
+        expect_any_instance_of(ZipTricks::Streamer).to receive(:write_deflated_file)
+          .with('test', {})
+        generator.each { |_| 'Test' }
       end
     end
   end
