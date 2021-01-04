@@ -31,7 +31,7 @@ module Zipline
       write_buffer = ZipTricks::WriteBuffer.new(fake_io_writer, write_buffer_size)
       ZipTricks::Streamer.open(write_buffer) do |streamer|
         @files.each do |file, name, options = {}|
-          handle_file(streamer, file, name, options)
+          handle_file(streamer, file, name.to_s, options)
         end
       end
       write_buffer.flush! # for any remaining writes
