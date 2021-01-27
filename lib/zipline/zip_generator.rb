@@ -3,8 +3,9 @@
 module Zipline
   class ZipGenerator
     # takes an array of pairs [[uploader, filename], ... ]
-    def initialize(files)
+    def initialize(files,  **kwargs_for_new)
       @files = files
+      @kwargs_for_new = kwargs_for_new
     end
 
     #this is supposed to be streamed!
@@ -29,7 +30,7 @@ module Zipline
       # this might pose a problem. Unlikely that it will be an issue here though.
       write_buffer_size = 16 * 1024
       write_buffer = ZipTricks::WriteBuffer.new(fake_io_writer, write_buffer_size)
-      ZipTricks::Streamer.open(write_buffer) do |streamer|
+      ZipTricks::Streamer.open(write_buffer, **@kwargs_for_new) do |streamer|
         @files.each do |file, name, options = {}|
           handle_file(streamer, file, name.to_s, options)
         end
