@@ -199,7 +199,7 @@ describe Zipline::ZipGenerator do
       it 'passes a string as filename to ZipTricks' do
         allow(file).to receive(:url).and_return('fakeurl')
         expect_any_instance_of(ZipTricks::Streamer).to receive(:write_deflated_file)
-          .with('test', {})
+          .with('test')
         generator.each { |_| 'Test' }
       end
     end
@@ -220,7 +220,7 @@ describe Zipline::ZipGenerator do
         generator.each { |_| 'Test' }
       end
 
-      it 'passes the options hash to ZipTricks' do
+      it 'passes the options hash to ZipTricks as kwargs' do
         allow(file).to receive(:url).and_return('fakeurl')
         expect_any_instance_of(ZipTricks::Streamer).to receive(:write_deflated_file)
           .with(anything, modification_time: mtime)
@@ -239,10 +239,30 @@ describe Zipline::ZipGenerator do
         generator.each { |_| 'Test' }
       end
 
-      it 'passes the options hash to ZipTricks' do
+      it 'passes the options hash to ZipTricks as kwargs' do
         allow(file).to receive(:url).and_return('fakeurl')
         expect_any_instance_of(ZipTricks::Streamer).to receive(:write_deflated_file)
-          .with(anything, {})
+          .with(anything)
+        generator.each { |_| 'Test' }
+      end
+    end
+
+    context 'with extra invalid options' do
+      let(:mtime) { 1.day.ago }
+      let(:generator) do
+        Zipline::ZipGenerator.new([[file, 'test', modification_time: mtime, extra: 'invalid']])
+      end
+
+      it 'passes the whole options hash through handle_file' do
+        expect(generator).to receive(:handle_file)
+          .with(anything, anything, anything, { modification_time: mtime, extra: 'invalid' })
+        generator.each { |_| 'Test' }
+      end
+
+      it 'only passes the kwargs to ZipTricks that it expects (i.e., :modification_time)' do
+        allow(file).to receive(:url).and_return('fakeurl')
+        expect_any_instance_of(ZipTricks::Streamer).to receive(:write_deflated_file)
+          .with(anything, modification_time: mtime)
         generator.each { |_| 'Test' }
       end
     end
