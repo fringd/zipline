@@ -21,4 +21,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'actionpack', ['>= 6.0', '< 8.0']
   gem.add_dependency 'content_disposition', '~> 1.0'
   gem.add_dependency 'zip_tricks', ['>= 4.2.1', '< 6.0']
+
+  # https://github.com/rspec/rspec-mocks/issues/1457
+  gem.add_development_dependency 'rspec-mocks', ['~> 3.10', '!= 3.10.3']
 end
