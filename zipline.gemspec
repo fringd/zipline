@@ -16,9 +16,9 @@ Gem::Specification.new do |gem|
   gem.version       = Zipline::VERSION
   gem.licenses      = ['MIT']
 
-  gem.required_ruby_version = ">= 2.3"
+  gem.required_ruby_version = ">= 2.7"
 
-  gem.add_dependency 'actionpack', ['>= 3.2.1', '< 8.0']
+  gem.add_dependency 'actionpack', ['>= 6.0', '< 8.0']
   gem.add_dependency 'content_disposition', '~> 1.0'
   gem.add_dependency 'zip_tricks', ['>= 4.2.1', '< 6.0']
 end
