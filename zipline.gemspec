@@ -23,5 +23,5 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'zip_tricks', ['>= 4.2.1', '< 6.0']
 
   # https://github.com/rspec/rspec-mocks/issues/1457
-  gem.add_development_dependency 'rspec-mocks', '~> 3.11'
+  gem.add_development_dependency 'rspec-mocks', '3.10.2'
 end
