@@ -41,7 +41,10 @@ class MyController < ApplicationController
     # responds to :url, :path or :file.
     # :modification_time is an optional third argument you can use.
     files = users.map{ |user| [user.avatar, "#{user.username}.png", modification_time: 1.day.ago] }
-    zipline(files, 'avatars.zip')
+
+    # we can force duplicate file names to be renamed, or raise an error
+    # we can also pass in our own writer if required to conform with the Delegated [ZipTricks::Streamer object](https://github.com/WeTransfer/zip_tricks/blob/main/lib/zip_tricks/streamer.rb#L147) object.
+    zipline(files, 'avatars.zip', auto_rename_duplicate_filenames: true) 
   end
 end
 ```
