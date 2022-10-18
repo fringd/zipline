@@ -1,3 +1,4 @@
+require 'content_disposition'
 require "zipline/version"
 require 'zip_tricks'
 require "zipline/zip_generator"
@@ -13,7 +14,7 @@ require "zipline/zip_generator"
 module Zipline
   def zipline(files, zipname = 'zipline.zip', **kwargs_for_new)
     zip_generator = ZipGenerator.new(files, **kwargs_for_new)
-    headers['Content-Disposition'] = "attachment; filename=\"#{zipname.gsub '"', '\"'}\""
+    headers['Content-Disposition'] = ContentDisposition.format(disposition: 'attachment', filename: zipname)
     headers['Content-Type'] = Mime::Type.lookup_by_extension('zip').to_s
     response.sending_file = true
     response.cache_control[:public] ||= false
