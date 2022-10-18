@@ -267,4 +267,9 @@ describe Zipline::ZipGenerator do
       end
     end
   end
+  it 'passes along constructor options to ZipTricks streamer' do
+    expect(ZipTricks::Streamer).to receive(:open).with(anything, { :some => 'options' })
+    generator = Zipline::ZipGenerator.new([file, 'somefile'], :some => 'options')
+    generator.each { |_| 'Test' }
+  end
 end

@@ -7,6 +7,7 @@ group :development, :test do
   gem 'rspec', '~> 3'
   gem 'fog-aws'
   gem 'activesupport'
+  gem 'actionpack'
   gem 'aws-sdk-s3'
   gem 'carrierwave'
   gem 'paperclip'
