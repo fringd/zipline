@@ -216,7 +216,7 @@ describe Zipline::ZipGenerator do
 
       it 'passes the options hash through handle_file' do
         expect(generator).to receive(:handle_file)
-          .with(anything, anything, anything, modification_time: mtime)
+          .with(anything, anything, anything, { modification_time: mtime })
         generator.each { |_| 'Test' }
       end
 
