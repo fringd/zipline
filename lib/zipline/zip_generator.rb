@@ -13,6 +13,10 @@ module Zipline
       throw "stop!"
     end
 
+    def to_ary
+      nil
+    end
+
     def each(&block)
       fake_io_writer = ZipTricks::BlockWrite.new(&block)
       # ZipTricks outputs lots of strings in rapid succession, and with
