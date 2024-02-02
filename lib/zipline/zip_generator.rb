@@ -14,6 +14,8 @@ module Zipline
     end
 
     def each(&block)
+      return to_enum(:each) unless block_given?
+
       fake_io_writer = ZipTricks::BlockWrite.new(&block)
       # ZipTricks outputs lots of strings in rapid succession, and with
       # servers it can be beneficial to avoid doing too many tiny writes so that
