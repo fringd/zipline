@@ -22,6 +22,13 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'content_disposition', '~> 1.0'
   gem.add_dependency 'zip_tricks', ['>= 4.2.1', '< 6.0']
 
+  gem.add_development_dependency 'rspec', '~> 3'
+  gem.add_development_dependency 'fog-aws'
+  gem.add_development_dependency 'aws-sdk-s3'
+  gem.add_development_dependency 'carrierwave'
+  gem.add_development_dependency 'paperclip'
+  gem.add_development_dependency 'rake'
+
   # https://github.com/rspec/rspec-mocks/issues/1457
-  gem.add_development_dependency 'rspec-mocks', '3.10.2'
+  gem.add_development_dependency 'rspec-mocks', '~> 3.12'
 end
