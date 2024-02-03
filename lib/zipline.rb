@@ -28,6 +28,9 @@ module Zipline
       # If HTTP/1.0 is used it is not possible to stream, and if that happens it usually will be
       # unclear why buffering is happening. Some info in the log is the least one can do.
       logger.warn { "The downstream HTTP proxy/LB insists on HTTP/1.0 protocol, ZIP response will be buffered." } if logger
+
+      # Here it would be good natured to to read and save the ZIP into a tempfile, and serve it from there.
+      # Rack has a Rack::TempfileReaper middleware which could be used for that etc. Maybe one day.
       self.response_body = zip_generator
     else
       # Disable buffering for both nginx and Google Load Balancer, see
