@@ -1,29 +1,34 @@
 require 'spec_helper'
-require 'ostruct'
+require 'action_controller'
 
 describe Zipline do
   before { Fog.mock! }
 
-  let (:undertest) {
-    class TestZipline
+  class FakeController < ActionController::Base
+    include Zipline
+    def download_zip
+      files = [
+        [StringIO.new("File content goes here"), "one.txt"],
+        [StringIO.new("Some other content goes here"), "two.txt"]
+      ]
+      zipline(files, 'myfiles.zip', auto_rename_duplicate_filenames: false)
+    end
+  end
 
-      attr_accessor :headers
-      attr_accessor :response
-      attr_accessor :response_body
-      def initialize 
-        @headers = {}
-        @response = OpenStruct.new(:cache_control => {}, :headers => {} )
-      end
-      include Zipline
-    end 
-    return TestZipline.new()
-  }
+  it 'passes keyword parameters to ZipTricks::Streamer' do
+    fake_rack_env = {
+      "HTTP_VERSION" => "HTTP/1.0",
+      "REQUEST_METHOD" => "GET",
+      "SCRIPT_NAME" => "",
+      "PATH_INFO" => "/download",
+      "QUERY_STRING" => "",
+      "SERVER_NAME" => "host.example",
+      "rack.input" => StringIO.new,
+    }
+    expect(ZipTricks::Streamer).to receive(:new).with(anything, auto_rename_duplicate_filenames: false).and_call_original
 
+    status, headers, body = FakeController.action(:download_zip).call(fake_rack_env)
 
-  it 'passes arguments along' do
-    expect(Zipline::ZipGenerator).to receive(:new)
-          .with(['some', 'fake', 'files'], { some: 'options' })
-    undertest.zipline(['some', 'fake', 'files'], 'myfiles.zip', some: 'options')
-    expect(undertest.headers['Content-Disposition']).to eq("attachment; filename=\"myfiles.zip\"; filename*=UTF-8''myfiles.zip")
+    expect(headers['Content-Disposition']).to eq("attachment; filename=\"myfiles.zip\"; filename*=UTF-8''myfiles.zip")
   end
 end
