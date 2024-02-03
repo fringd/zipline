@@ -2,7 +2,8 @@ require 'content_disposition'
 require "zipline/version"
 require 'zip_tricks'
 require "zipline/zip_generator"
-require "zipline/chunked"
+require "zipline/chunked_body"
+require "zipline/tempfile_body"
 
 # class MyController < ApplicationController
 #   include Zipline
@@ -31,7 +32,10 @@ module Zipline
 
       # Here it would be good natured to to read and save the ZIP into a tempfile, and serve it from there.
       # Rack has a Rack::TempfileReaper middleware which could be used for that etc. Maybe one day.
-      self.response_body = zip_generator
+      tempfile_body = Zipline::TempfileBody.new(request.env, zip_generator)
+      headers["Content-Length"] = tempfile_body.size.to_s
+      headers["X-Zipline-Output"] = "buffered"
+      self.response_body = tempfile_body
     else
       # Disable buffering for both nginx and Google Load Balancer, see
       # https://cloud.google.com/appengine/docs/flexible/how-requests-are-handled?tab=python#x-accel-buffering
@@ -43,6 +47,7 @@ module Zipline
 
       # and send out in chunked encoding
       headers["Transfer-Encoding"] = "chunked"
+      headers["X-Zipline-Output"] = "streamed"
       self.response_body = Zipline::Chunked.new(zip_generator)
     end
   end
