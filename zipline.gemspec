@@ -20,7 +20,7 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency 'actionpack', ['>= 6.0', '< 8.0']
   gem.add_dependency 'content_disposition', '~> 1.0'
-  gem.add_dependency 'zip_tricks', ['>= 4.2.1', '< 6.0']
+  gem.add_dependency 'zip_tricks', ['~> 4.8', '< 6'] # Minimum to 4.8.3 which is the last-released MIT version
 
   gem.add_development_dependency 'rspec', '~> 3'
   gem.add_development_dependency 'fog-aws'
