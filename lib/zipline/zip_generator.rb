@@ -8,11 +8,6 @@ module Zipline
       @kwargs_for_new = kwargs_for_new
     end
 
-    #this is supposed to be streamed!
-    def to_s
-      throw "stop!"
-    end
-
     def each(&block)
       return to_enum(:each) unless block_given?
 
