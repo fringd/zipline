@@ -1,9 +1,9 @@
 require 'content_disposition'
-require "zipline/version"
+require 'zipline/version'
 require 'zip_tricks'
-require "zipline/zip_generator"
-require "zipline/chunked_body"
-require "zipline/tempfile_body"
+require 'zipline/zip_generator'
+require 'zipline/chunked_body'
+require 'zipline/tempfile_body'
 
 # class MyController < ApplicationController
 #   include Zipline
