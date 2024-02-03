@@ -30,8 +30,9 @@ module Zipline
       # unclear why buffering is happening. Some info in the log is the least one can do.
       logger.warn { "The downstream HTTP proxy/LB insists on HTTP/1.0 protocol, ZIP response will be buffered." } if logger
 
-      # Here it would be good natured to to read and save the ZIP into a tempfile, and serve it from there.
-      # Rack has a Rack::TempfileReaper middleware which could be used for that etc. Maybe one day.
+      # If we use Rack::ContentLength it would run through our ZIP block twice - once to calculate the content length
+      # of the response, and once - to serve. We can trade performance for disk space and buffer the response into a Tempfile
+      # since we are already buffering.
       tempfile_body = Zipline::TempfileBody.new(request.env, zip_generator)
       headers["Content-Length"] = tempfile_body.size.to_s
       headers["X-Zipline-Output"] = "buffered"
