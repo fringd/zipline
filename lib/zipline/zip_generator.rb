@@ -15,11 +15,23 @@ module Zipline
     def each(&block)
       return to_enum(:each) unless block_given?
       @body.each(&block)
+    rescue => e
+      # Since most APM packages do not trace errors occurring within streaming
+      # Rack bodies, it can be helpful to print the error to the Rails log at least
+      error_message = "zipline: an exception (#{e.inspect}) was raised  when serving the ZIP body."
+      error_message += " The error occurred when handling #{@filename.inspect}" if @filename
+      logger.error(error_message)
+      raise
     end
 
     def handle_file(streamer, file, name, options)
       file = normalize(file)
+
+      # Store the filename so that a sensible error message can be displayed in the log
+      # if writing this particular file fails
+      @filename = name
       write_file(streamer, file, name, options)
+      @filename = nil
     end
 
     # This extracts either a url or a local file from the provided file.
@@ -85,6 +97,16 @@ module Zipline
     end
 
     private
+
+    def logger
+      # Rails is not defined in our tests, and might as well not be defined
+      # elsewhere - or the logger might not be configured correctly
+      if defined?(Rails.logger) && Rails.logger
+        Rails.logger
+      else
+        Logger.new($stderr)
+      end
+    end
 
     def is_active_storage_attachment?(file)
       defined?(ActiveStorage::Attachment) && file.is_a?(ActiveStorage::Attachment)
