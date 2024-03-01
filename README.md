@@ -7,7 +7,7 @@ A gem to stream dynamically generated zip files from a rails application. Unlike
 - Removes need for large disk space or memory allocation to generate zips, even huge zips. So it works on Heroku.
 - The user begins downloading immediately, which decreaceses latency, download time, and timeouts on Heroku.
 
-Zipline now depends on [zip tricks](https://github.com/WeTransfer/zip_tricks), and you might want to just use that directly if you have more advanced use cases.
+Zipline now depends on [zip_kit](https://github.com/julik/zip_kit), and you might want to just use that directly if you have more advanced use cases.
 
 ## Installation
 
@@ -43,7 +43,7 @@ class MyController < ApplicationController
     files = users.map{ |user| [user.avatar, "#{user.username}.png", modification_time: 1.day.ago] }
 
     # we can force duplicate file names to be renamed, or raise an error
-    # we can also pass in our own writer if required to conform with the Delegated [ZipTricks::Streamer object](https://github.com/WeTransfer/zip_tricks/blob/main/lib/zip_tricks/streamer.rb#L147) object.
+    # we can also pass in our own writer if required to conform with the delegated [ZipKit::Streamer object](https://github.com/julik/zip_kit/blob/main/lib/zip_kit/streamer.rb#L147) object.
     zipline(files, 'avatars.zip', auto_rename_duplicate_filenames: true) 
   end
 end
@@ -93,7 +93,7 @@ For directories, just give the files names like "directory/file".
 
 ```Ruby
 avatars = [
-  # remote_url                          zip_path             zip_tricks_options
+  # remote_url                          zip_path             write_file options for Streamer
   [ 'http://www.example.com/user1.png', 'avatars/user1.png', modification_time: Time.now.utc ]
   [ 'http://www.example.com/user2.png', 'avatars/user2.png', modification_time: 1.day.ago ]
   [ 'http://www.example.com/user3.png', 'avatars/user3.png' ]
