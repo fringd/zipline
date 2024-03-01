@@ -38,7 +38,7 @@ describe Zipline::ZipGenerator do
   let(:file){ directory.files.create(file_attributes) }
 
   describe '.normalize' do
-    let(:generator){ Zipline::ZipGenerator.new(_files = [], _env = {})}
+    let(:generator){ Zipline::ZipGenerator.new(_env = {}, _files = [])}
     context "CarrierWave" do
       context "Remote" do
         let(:file){ CarrierWave::Storage::Fog::File.new(nil,nil,nil) }
