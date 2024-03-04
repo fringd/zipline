@@ -3,25 +3,22 @@
 module Zipline
   class ZipGenerator
     # takes an array of pairs [[uploader, filename], ... ]
-    def initialize(files,  **kwargs_for_streamer)
-      # Use RackBody as it has buffering built-in in zip_tricks 5.x+
-      @body = ZipTricks::RackBody.new(**kwargs_for_streamer) do |streamer|
+    def initialize(env, files, **kwargs_for_streamer)
+      zip_enumerator = ZipKit::OutputEnumerator.new(**kwargs_for_streamer) do |streamer|
         files.each do |file, name, options = {}|
           handle_file(streamer, file, name.to_s, options)
         end
+      end
+
+      @headers, @body = recording_stream_exceptions do
+        # If buffering is used, the streaming block will be executed immediately to compute Content-Length
+        zip_enumerator.to_headers_and_rack_response_body(env)
       end
     end
 
     def each(&block)
       return to_enum(:each) unless block_given?
-      @body.each(&block)
-    rescue => e
-      # Since most APM packages do not trace errors occurring within streaming
-      # Rack bodies, it can be helpful to print the error to the Rails log at least
-      error_message = "zipline: an exception (#{e.inspect}) was raised  when serving the ZIP body."
-      error_message += " The error occurred when handling #{@filename.inspect}" if @filename
-      logger.error(error_message)
-      raise
+      recording_stream_exceptions { @body.each(&block) }
     end
 
     def handle_file(streamer, file, name, options)
@@ -72,7 +69,7 @@ module Zipline
     end
 
     def write_file(streamer, file, name, options)
-      streamer.write_deflated_file(name, **options.slice(:modification_time)) do |writer_for_file|
+      streamer.write_file(name, **options.slice(:modification_time)) do |writer_for_file|
         if file[:url]
           the_remote_uri = URI(file[:url])
 
@@ -92,11 +89,26 @@ module Zipline
       end
     end
 
-    def is_io?(io_ish)
-      io_ish.respond_to? :read
+    def headers
+      @headers
     end
 
     private
+
+    def recording_stream_exceptions
+      yield
+    rescue => e
+      # Since most APM packages do not trace errors occurring within streaming
+      # Rack bodies, it can be helpful to print the error to the Rails log at least
+      error_message = "zipline: an exception (#{e.inspect}) was raised  when serving the ZIP body."
+      error_message += " The error occurred when handling #{@filename.inspect}" if @filename
+      logger.error(error_message)
+      raise
+    end
+
+    def is_io?(io_ish)
+      io_ish.respond_to? :read
+    end
 
     def logger
       # Rails is not defined in our tests, and might as well not be defined

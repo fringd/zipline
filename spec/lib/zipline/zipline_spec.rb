@@ -29,7 +29,7 @@ describe Zipline do
     end
   end
 
-  it 'passes keyword parameters to ZipTricks::Streamer' do
+  it 'passes keyword parameters to ZipKit::Streamer' do
     fake_rack_env = {
       "HTTP_VERSION" => "HTTP/1.0",
       "REQUEST_METHOD" => "GET",
@@ -39,7 +39,7 @@ describe Zipline do
       "SERVER_NAME" => "host.example",
       "rack.input" => StringIO.new,
     }
-    expect(ZipTricks::Streamer).to receive(:new).with(anything, auto_rename_duplicate_filenames: false).and_call_original
+    expect(ZipKit::Streamer).to receive(:new).with(anything, auto_rename_duplicate_filenames: false).and_call_original
 
     status, headers, body = FakeController.action(:download_zip).call(fake_rack_env)
 
@@ -56,13 +56,13 @@ describe Zipline do
       "SERVER_NAME" => "host.example",
       "rack.input" => StringIO.new,
     }
-    expect(ZipTricks::Streamer).to receive(:new).with(anything, auto_rename_duplicate_filenames: false).and_call_original
     fake_logger = double()
     expect(Logger).to receive(:new).and_return(fake_logger)
     expect(fake_logger).to receive(:error).with(instance_of(String))
 
     expect {
-      FakeController.action(:download_zip_with_error_during_streaming).call(fake_rack_env)
+      status, headers, body = FakeController.action(:download_zip_with_error_during_streaming).call(fake_rack_env)
+      body.each { }
     }.to raise_error(/Something wonky/)
   end
 end
