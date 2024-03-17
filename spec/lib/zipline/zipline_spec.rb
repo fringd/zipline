@@ -2,7 +2,10 @@ require 'spec_helper'
 require 'action_controller'
 
 describe Zipline do
-  before { Fog.mock! }
+  before do
+    Fog.mock!
+    FakeController.logger = nil
+  end
 
   class FakeController < ActionController::Base
     include Zipline
@@ -29,7 +32,7 @@ describe Zipline do
     end
   end
 
-  it 'passes keyword parameters to ZipKit::Streamer' do
+  it 'passes keyword parameters to ZipKit::OutputEnumerator' do
     fake_rack_env = {
       "HTTP_VERSION" => "HTTP/1.0",
       "REQUEST_METHOD" => "GET",
@@ -39,7 +42,7 @@ describe Zipline do
       "SERVER_NAME" => "host.example",
       "rack.input" => StringIO.new,
     }
-    expect(ZipKit::Streamer).to receive(:new).with(anything, auto_rename_duplicate_filenames: false).and_call_original
+    expect(ZipKit::OutputEnumerator).to receive(:new).with(auto_rename_duplicate_filenames: false).and_call_original
 
     status, headers, body = FakeController.action(:download_zip).call(fake_rack_env)
 
@@ -57,8 +60,10 @@ describe Zipline do
       "rack.input" => StringIO.new,
     }
     fake_logger = double()
-    expect(Logger).to receive(:new).and_return(fake_logger)
-    expect(fake_logger).to receive(:error).with(instance_of(String))
+    allow(fake_logger).to receive(:warn)
+    expect(fake_logger).to receive(:error).with(a_string_matching(/when serving the ZIP/))
+
+    FakeController.logger = fake_logger
 
     expect {
       status, headers, body = FakeController.action(:download_zip_with_error_during_streaming).call(fake_rack_env)

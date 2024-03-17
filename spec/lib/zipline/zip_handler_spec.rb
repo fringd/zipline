@@ -18,7 +18,7 @@ module ActiveStorage
   end
 end
 
-describe Zipline::ZipGenerator do
+describe Zipline::ZipHandler do
   before { Fog.mock! }
   let(:file_attributes){ {
     key: 'fog_file_tests',
@@ -38,21 +38,21 @@ describe Zipline::ZipGenerator do
   let(:file){ directory.files.create(file_attributes) }
 
   describe '.normalize' do
-    let(:generator){ Zipline::ZipGenerator.new(_env = {}, _files = [])}
+    let(:handler){ Zipline::ZipHandler.new(_streamer = double(), _logger = nil)}
     context "CarrierWave" do
       context "Remote" do
         let(:file){ CarrierWave::Storage::Fog::File.new(nil,nil,nil) }
         it "extracts the url" do
           allow(file).to receive(:url).and_return('fakeurl')
           expect(File).not_to receive(:open)
-          expect(generator.normalize(file)).to eq({url: 'fakeurl'})
+          expect(handler.normalize(file)).to eq({url: 'fakeurl'})
         end
       end
       context "Local" do
         let(:file){ CarrierWave::SanitizedFile.new(Tempfile.new('t')) }
         it "creates a File" do
           allow(file).to receive(:path).and_return('spec/fakefile.txt')
-          normalized = generator.normalize(file)
+          normalized = handler.normalize(file)
           expect(normalized.keys).to include(:file)
           expect(normalized[:file]).to be_a File
         end
@@ -66,7 +66,7 @@ describe Zipline::ZipGenerator do
             allow(uploader).to receive(:file).and_return(file)
             allow(file).to receive(:url).and_return('fakeurl')
             expect(File).not_to receive(:open)
-            expect(generator.normalize(uploader)).to eq({url: 'fakeurl'})
+            expect(handler.normalize(uploader)).to eq({url: 'fakeurl'})
           end
         end
 
@@ -75,7 +75,7 @@ describe Zipline::ZipGenerator do
           it "creates a File" do
             allow(uploader).to receive(:file).and_return(file)
             allow(file).to receive(:path).and_return('spec/fakefile.txt')
-            normalized = generator.normalize(uploader)
+            normalized = handler.normalize(uploader)
             expect(normalized.keys).to include(:file)
             expect(normalized[:file]).to be_a File
           end
@@ -87,7 +87,7 @@ describe Zipline::ZipGenerator do
         let(:file){ Paperclip::Attachment.new(:name, :instance) }
         it "creates a File" do
           allow(file).to receive(:path).and_return('spec/fakefile.txt')
-          normalized = generator.normalize(file)
+          normalized = handler.normalize(file)
           expect(normalized.keys).to include(:file)
           expect(normalized[:file]).to be_a File
         end
@@ -97,7 +97,7 @@ describe Zipline::ZipGenerator do
         it "creates a URL" do
           allow(file).to receive(:expiring_url).and_return('fakeurl')
           expect(File).to_not receive(:open)
-          expect(generator.normalize(file)).to include(url: 'fakeurl')
+          expect(handler.normalize(file)).to include(url: 'fakeurl')
         end
       end
     end
@@ -107,7 +107,7 @@ describe Zipline::ZipGenerator do
           attached = create_attached_one
           allow_any_instance_of(Object).to receive(:defined?).and_return(true)
 
-          normalized = generator.normalize(attached)
+          normalized = handler.normalize(attached)
 
           expect(normalized.keys).to include(:blob)
           expect(normalized[:blob]).to be_a(ActiveStorage::Blob)
@@ -119,7 +119,7 @@ describe Zipline::ZipGenerator do
           attachment = create_attachment
           allow_any_instance_of(Object).to receive(:defined?).and_return(true)
 
-          normalized = generator.normalize(attachment)
+          normalized = handler.normalize(attachment)
 
           expect(normalized.keys).to include(:blob)
           expect(normalized[:blob]).to be_a(ActiveStorage::Blob)
@@ -131,7 +131,7 @@ describe Zipline::ZipGenerator do
           blob = create_blob
           allow_any_instance_of(Object).to receive(:defined?).and_return(true)
 
-          normalized = generator.normalize(blob)
+          normalized = handler.normalize(blob)
 
           expect(normalized.keys).to include(:blob)
           expect(normalized[:blob]).to be_a(ActiveStorage::Blob)
@@ -169,19 +169,19 @@ describe Zipline::ZipGenerator do
       it "extracts url" do
         allow(file).to receive(:url).and_return('fakeurl')
         expect(File).not_to receive(:open)
-        expect(generator.normalize(file)).to eq(url:  'fakeurl')
+        expect(handler.normalize(file)).to eq(url:  'fakeurl')
       end
     end
     context "IOStream" do
       let(:file){ StringIO.new('passthrough')}
       it "passes through" do
-        expect(generator.normalize(file)).to eq(file: file)
+        expect(handler.normalize(file)).to eq(file: file)
       end
     end
     context "invalid" do
       let(:file){ Thread.new{} }
       it "raises error" do
-        expect{generator.normalize(file)}.to raise_error(ArgumentError)
+        expect{handler.normalize(file)}.to raise_error(ArgumentError)
       end
     end
   end
