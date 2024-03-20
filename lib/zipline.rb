@@ -1,7 +1,7 @@
-require 'content_disposition'
-require 'zip_kit'
-require 'zipline/version'
-require 'zipline/zip_handler'
+require "content_disposition"
+require "zip_kit"
+require "zipline/version"
+require "zipline/zip_handler"
 
 # class MyController < ApplicationController
 #   include Zipline
@@ -17,7 +17,7 @@ module Zipline
     super
   end
 
-  def zipline(files, zipname = 'zipline.zip', **kwargs_for_zip_kit_stream)
+  def zipline(files, zipname = "zipline.zip", **kwargs_for_zip_kit_stream)
     zip_kit_stream(filename: zipname, **kwargs_for_zip_kit_stream) do |zip_kit_streamer|
       handler = Zipline::ZipHandler.new(zip_kit_streamer, logger)
       files.each do |file, name, options = {}|
