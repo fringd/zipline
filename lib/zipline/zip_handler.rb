@@ -3,14 +3,14 @@ class Zipline::ZipHandler
     @streamer = streamer
     @logger = logger
   end
-  
+
   def handle_file(file, name, options)
     write_item(file, name, options)
   rescue => e
     # Since most APM packages do not trace errors occurring within streaming
     # Rack bodies, it can be helpful to print the error to the Rails log at least
     error_message = "zipline: an exception (#{e.inspect}) was raised  when serving the ZIP body."
-    error_message += " The error occurred when handling file #{name.inspect}"
+    error_message += " The error occurred when handling file #{name.inspect} which was a #{file.class}"
     @logger&.error(error_message)
     raise
   end
@@ -37,6 +37,6 @@ class Zipline::ZipHandler
       return maybe_retriever if maybe_retriever
     end
 
-    raise "Don't know how to handle a file in the shape of #{file_argument.inspect}" unless retriever
+    raise "Don't know how to handle a file in the shape of #{item.inspect}"
   end
 end
