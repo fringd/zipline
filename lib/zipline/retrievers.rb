@@ -7,11 +7,8 @@ class Zipline::IORetriever
     @io = io
   end
 
-  def each_chunk
-    chunk_size = 1024
-    while (bytes = @io.read(chunk_size))
-      yield(bytes)
-    end
+  def download_and_write_into(destination)
+    IO.copy_stream(@io, destination)
   end
 end
 
@@ -20,33 +17,34 @@ class Zipline::FileRetriever < Zipline::IORetriever
     return super(item) if item.is_a?(File)
   end
 
-  def each_chunk(&blk)
+  def download_and_write_into(destination)
     @io.rewind
-    super(&blk)
+    super(destination)
   ensure
     @io.close
   end
 end
 
 class Zipline::HTTPRetriever
-  def self.build_for(url)
-    return unless item && item.is_a?(String) && item.start_with?("http")
-    new(item)
-  end
-
-  def initialize(url)
-    @uri = URI(url)
-  end
-
-  def each_chunk(&block)
-    Net::HTTP.get_response(@uri) do |response|
-      response.read_body(&block)
+  def self.build_for(url_or_uri)
+    uri = begin
+      URI.parse(url_or_uri)
+    rescue
+      return
     end
+    return new(uri) if uri.is_a?(URI::HTTP) || uri.is_a?(URI::HTTPS)
   end
 
-  def may_restart_after?(e)
-    # Server error, IO error etc
-    false
+  def initialize(uri)
+    @uri = uri
+  end
+
+  def download_and_write_into(destination)
+    Net::HTTP.get_response(@uri) do |response|
+      response.read_body do |chunk|
+        destination.write(destination)
+      end
+    end
   end
 end
 
@@ -60,14 +58,14 @@ class Zipline::StringRetriever
     @string = string
   end
 
-  def each_chunk
+  def download_and_write_into(destination)
     chunk_size = 1024
     offset = 0
     loop do
       bytes = @string.byteslice(offset, chunk_size)
       offset += chunk_size
+      destination.write(bytes)
       break if bytes.nil?
-      yield(bytes)
     end
   end
 
@@ -92,7 +90,6 @@ class Zipline::ActiveStorageRetriever
     nil
   end
 
-
   def self.is_active_storage_attachment?(item)
     defined?(ActiveStorage::Attachment) && item.is_a?(ActiveStorage::Attachment)
   end
@@ -109,8 +106,10 @@ class Zipline::ActiveStorageRetriever
     @blob = blob
   end
 
-  def each_chunk(&block)
-    @blob.download(&block)
+  def download_and_write_into(destination)
+    @blob.download do |bytes|
+      destination.write(bytes)
+    end
   end
 end
 

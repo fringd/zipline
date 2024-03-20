@@ -17,10 +17,8 @@ class Zipline::ZipHandler
 
   def write_item(item, name, options)
     retriever = pick_retriever_for(item)
-    @streamer.write_file(name, **options.slice(:modification_time)) do |writer_for_file|
-      retriever.each_chunk do |bytes|
-        writer_for_file << bytes
-      end
+    @streamer.write_file(name, **options.slice(:modification_time)) do |writable|
+      retriever.download_and_write_into(writable)
     end
   end
 
