@@ -1,7 +1,7 @@
-require "content_disposition"
 require "zip_kit"
 require "zipline/version"
 require "zipline/zip_handler"
+require "zipline/retrievers"
 
 # class MyController < ApplicationController
 #   include Zipline
