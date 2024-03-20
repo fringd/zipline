@@ -1,9 +1,5 @@
 require "zip_kit"
 
-require_relative "zipline/version"
-require_relative "zipline/zip_handler"
-require_relative "zipline/retrievers"
-
 # class MyController < ApplicationController
 #   include Zipline
 #   def index
@@ -13,6 +9,10 @@ require_relative "zipline/retrievers"
 #   end
 # end
 module Zipline
+  require_relative "zipline/version"
+  require_relative "zipline/zip_handler"
+  require_relative "zipline/retrievers"
+
   def self.included(into_controller)
     into_controller.include(ZipKit::RailsStreaming)
     super
