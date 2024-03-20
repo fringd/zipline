@@ -14,7 +14,7 @@ module Zipline
       # Rack bodies, it can be helpful to print the error to the Rails log at least
       error_message = "zipline: an exception (#{e.inspect}) was raised  when serving the ZIP body."
       error_message += " The error occurred when handling file #{name.inspect}"
-      @logger.error(error_message) if @logger
+      @logger&.error(error_message)
       raise
     end
 
@@ -51,7 +51,7 @@ module Zipline
       elsif is_url?(file)
         {url: file}
       else
-        raise(ArgumentError, 'Bad File/Stream')
+        raise(ArgumentError, "Bad File/Stream")
       end
     end
 
@@ -71,7 +71,7 @@ module Zipline
         elsif file[:blob]
           file[:blob].download { |chunk| writer_for_file << chunk }
         else
-          raise(ArgumentError, 'Bad File/Stream')
+          raise(ArgumentError, "Bad File/Stream")
         end
       end
     end
@@ -91,8 +91,12 @@ module Zipline
     end
 
     def is_url?(url)
-      url = URI.parse(url) rescue false
-      url.kind_of?(URI::HTTP) || url.kind_of?(URI::HTTPS)
+      url = begin
+        URI.parse(url)
+      rescue
+        false
+      end
+      url.is_a?(URI::HTTP) || url.is_a?(URI::HTTPS)
     end
   end
 end
