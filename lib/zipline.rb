@@ -1,7 +1,8 @@
 require "zip_kit"
-require "zipline/version"
-require "zipline/zip_handler"
-require "zipline/retrievers"
+
+require_relative "zipline/version"
+require_relative "zipline/zip_handler"
+require_relative "zipline/retrievers"
 
 # class MyController < ApplicationController
 #   include Zipline
