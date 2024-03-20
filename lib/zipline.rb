@@ -1,7 +1,4 @@
-require 'content_disposition'
-require 'zip_kit'
-require 'zipline/version'
-require 'zipline/zip_handler'
+require "zip_kit"
 
 # class MyController < ApplicationController
 #   include Zipline
@@ -12,12 +9,16 @@ require 'zipline/zip_handler'
 #   end
 # end
 module Zipline
+  require_relative "zipline/version"
+  require_relative "zipline/zip_handler"
+  require_relative "zipline/retrievers"
+
   def self.included(into_controller)
     into_controller.include(ZipKit::RailsStreaming)
     super
   end
 
-  def zipline(files, zipname = 'zipline.zip', **kwargs_for_zip_kit_stream)
+  def zipline(files, zipname = "zipline.zip", **kwargs_for_zip_kit_stream)
     zip_kit_stream(filename: zipname, **kwargs_for_zip_kit_stream) do |zip_kit_streamer|
       handler = Zipline::ZipHandler.new(zip_kit_streamer, logger)
       files.each do |file, name, options = {}|

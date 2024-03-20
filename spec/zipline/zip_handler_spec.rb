@@ -1,17 +1,21 @@
-require 'spec_helper'
-require 'tempfile'
+require "spec_helper"
+require "tempfile"
 
 module ActiveStorage
   class Attached
     class One < Attached
     end
   end
+
   class Attachment; end
+
   class Blob; end
+
   class Filename
     def initialize(name)
       @name = name
     end
+
     def to_s
       @name
     end
@@ -20,38 +24,44 @@ end
 
 describe Zipline::ZipHandler do
   before { Fog.mock! }
-  let(:file_attributes){ {
-    key: 'fog_file_tests',
-    body: 'some body',
-    public: true
-  }}
-  let(:directory_attributes){{
-    key: 'fog_directory'
-  }}
-  let(:storage_attributes){{
-    aws_access_key_id: 'fake_access_key_id',
-    aws_secret_access_key: 'fake_secret_access_key',
-    provider: 'AWS'
-  }}
-  let(:storage){ Fog::Storage.new(storage_attributes)}
-  let(:directory){ storage.directories.create(directory_attributes) }
-  let(:file){ directory.files.create(file_attributes) }
+  let(:file_attributes) {
+    {
+      key: "fog_file_tests",
+      body: "some body",
+      public: true
+    }
+  }
+  let(:directory_attributes) {
+    {
+      key: "fog_directory"
+    }
+  }
+  let(:storage_attributes) {
+    {
+      aws_access_key_id: "fake_access_key_id",
+      aws_secret_access_key: "fake_secret_access_key",
+      provider: "AWS"
+    }
+  }
+  let(:storage) { Fog::Storage.new(storage_attributes) }
+  let(:directory) { storage.directories.create(directory_attributes) }
+  let(:file) { directory.files.create(file_attributes) }
 
-  describe '.normalize' do
-    let(:handler){ Zipline::ZipHandler.new(_streamer = double(), _logger = nil)}
+  describe ".normalize" do
+    let(:handler) { Zipline::ZipHandler.new(_streamer = double, _logger = nil) }
     context "CarrierWave" do
       context "Remote" do
-        let(:file){ CarrierWave::Storage::Fog::File.new(nil,nil,nil) }
+        let(:file) { CarrierWave::Storage::Fog::File.new(nil, nil, nil) }
         it "extracts the url" do
-          allow(file).to receive(:url).and_return('fakeurl')
+          allow(file).to receive(:url).and_return("fakeurl")
           expect(File).not_to receive(:open)
-          expect(handler.normalize(file)).to eq({url: 'fakeurl'})
+          expect(handler.normalize(file)).to eq({url: "fakeurl"})
         end
       end
       context "Local" do
-        let(:file){ CarrierWave::SanitizedFile.new(Tempfile.new('t')) }
+        let(:file) { CarrierWave::SanitizedFile.new(Tempfile.new("t")) }
         it "creates a File" do
-          allow(file).to receive(:path).and_return('spec/fakefile.txt')
+          allow(file).to receive(:path).and_return("spec/fakefile.txt")
           normalized = handler.normalize(file)
           expect(normalized.keys).to include(:file)
           expect(normalized[:file]).to be_a File
@@ -61,20 +71,20 @@ describe Zipline::ZipHandler do
         let(:uploader) { Class.new(CarrierWave::Uploader::Base).new }
 
         context "Remote" do
-          let(:file){ CarrierWave::Storage::Fog::File.new(nil,nil,nil) }
+          let(:file) { CarrierWave::Storage::Fog::File.new(nil, nil, nil) }
           it "extracts the url" do
             allow(uploader).to receive(:file).and_return(file)
-            allow(file).to receive(:url).and_return('fakeurl')
+            allow(file).to receive(:url).and_return("fakeurl")
             expect(File).not_to receive(:open)
-            expect(handler.normalize(uploader)).to eq({url: 'fakeurl'})
+            expect(handler.normalize(uploader)).to eq({url: "fakeurl"})
           end
         end
 
         context "Local" do
-          let(:file){ CarrierWave::SanitizedFile.new(Tempfile.new('t')) }
+          let(:file) { CarrierWave::SanitizedFile.new(Tempfile.new("t")) }
           it "creates a File" do
             allow(uploader).to receive(:file).and_return(file)
-            allow(file).to receive(:path).and_return('spec/fakefile.txt')
+            allow(file).to receive(:path).and_return("spec/fakefile.txt")
             normalized = handler.normalize(uploader)
             expect(normalized.keys).to include(:file)
             expect(normalized[:file]).to be_a File
@@ -84,20 +94,20 @@ describe Zipline::ZipHandler do
     end
     context "Paperclip" do
       context "Local" do
-        let(:file){ Paperclip::Attachment.new(:name, :instance) }
+        let(:file) { Paperclip::Attachment.new(:name, :instance) }
         it "creates a File" do
-          allow(file).to receive(:path).and_return('spec/fakefile.txt')
+          allow(file).to receive(:path).and_return("spec/fakefile.txt")
           normalized = handler.normalize(file)
           expect(normalized.keys).to include(:file)
           expect(normalized[:file]).to be_a File
         end
       end
       context "Remote" do
-        let(:file){ Paperclip::Attachment.new(:name, :instance, storage: :s3) }
+        let(:file) { Paperclip::Attachment.new(:name, :instance, storage: :s3) }
         it "creates a URL" do
-          allow(file).to receive(:expiring_url).and_return('fakeurl')
+          allow(file).to receive(:expiring_url).and_return("fakeurl")
           expect(File).to_not receive(:open)
-          expect(handler.normalize(file)).to include(url: 'fakeurl')
+          expect(handler.normalize(file)).to include(url: "fakeurl")
         end
       end
     end
@@ -154,7 +164,7 @@ describe Zipline::ZipHandler do
 
       def create_blob
         blob = ActiveStorage::Blob.new
-        allow(blob).to receive(:service_url).and_return('fakeurl')
+        allow(blob).to receive(:service_url).and_return("fakeurl")
         filename = create_filename
         allow(blob).to receive(:filename).and_return(filename)
         blob
@@ -162,26 +172,26 @@ describe Zipline::ZipHandler do
 
       def create_filename
         # Rails wraps Blob#filname in this class since Rails 5.2
-        ActiveStorage::Filename.new('test')
+        ActiveStorage::Filename.new("test")
       end
     end
     context "Fog" do
       it "extracts url" do
-        allow(file).to receive(:url).and_return('fakeurl')
+        allow(file).to receive(:url).and_return("fakeurl")
         expect(File).not_to receive(:open)
-        expect(handler.normalize(file)).to eq(url:  'fakeurl')
+        expect(handler.normalize(file)).to eq(url: "fakeurl")
       end
     end
     context "IOStream" do
-      let(:file){ StringIO.new('passthrough')}
+      let(:file) { StringIO.new("passthrough") }
       it "passes through" do
         expect(handler.normalize(file)).to eq(file: file)
       end
     end
     context "invalid" do
-      let(:file){ Thread.new{} }
+      let(:file) { Thread.new {} }
       it "raises error" do
-        expect{handler.normalize(file)}.to raise_error(ArgumentError)
+        expect { handler.normalize(file) }.to raise_error(ArgumentError)
       end
     end
   end
