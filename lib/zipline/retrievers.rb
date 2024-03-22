@@ -42,7 +42,7 @@ class Zipline::HTTPRetriever
   def download_and_write_into(destination)
     Net::HTTP.get_response(@uri) do |response|
       response.read_body do |chunk|
-        destination.write(destination)
+        destination.write(chunk)
       end
     end
   end
