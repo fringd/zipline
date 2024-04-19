@@ -11,7 +11,9 @@ require "zip_kit"
 module Zipline
   require_relative "zipline/version"
   require_relative "zipline/zip_handler"
-  require_relative "zipline/retrievers"
+  Dir.glob(__dir__ + "/zipline/retrievers/*.rb").sort.each do |retriever_module_path|
+    require retriever_module_path
+  end
 
   def self.included(into_controller)
     into_controller.include(ZipKit::RailsStreaming)

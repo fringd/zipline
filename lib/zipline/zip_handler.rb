@@ -17,8 +17,25 @@ class Zipline::ZipHandler
 
   def write_item(item, name, options)
     retriever = pick_retriever_for(item)
-    @streamer.write_file(name, **options.slice(:modification_time)) do |writable|
-      retriever.download_and_write_into(writable)
+    attempts = 0
+    begin
+      attempts += 1
+      @streamer.write_file(name, **options.slice(:modification_time)) do |writable|
+        ActiveSupport::Notifications.instrument("zipline.retrieve_and_write", {retriever_class: retriever.class.to_s, filename: name}) do
+          retriever.retrieve_into(writable)
+        end
+      end
+    rescue => exception
+      # If an exception is raised and it is known to be caused by the data retrieval from
+      # remote, we can retry outputting this particular file. ZipKit will rollback the file
+      # before raising the exception to us, so we can just redo the `write_file` call.
+      if retriever.restartable?(exception)
+        @logger.warn { "Reattempting of #{name.inspect} will be reattempted after #{exception}" }
+        retry
+      else
+        @logger.warn { "Retrieval of #{name.inspect} cannot be restarted after #{exception}, abprting" }
+        raise
+      end
     end
   end
 
@@ -27,10 +44,11 @@ class Zipline::ZipHandler
       Zipline::CarrierwaveRetriever,
       Zipline::ActiveStorageRetriever,
       Zipline::PaperclipRetriever,
+      Zipline::ShrineRetriever,
       Zipline::FileRetriever,
       Zipline::IORetriever,
       Zipline::HTTPRetriever,
-      Zipline::StringRetriever,
+      Zipline::StringRetriever
     ]
     retriever_classes.each do |retriever_class|
       maybe_retriever = retriever_class.build_for(item)
