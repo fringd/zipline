@@ -18,7 +18,7 @@ Gem::Specification.new do |gem|
 
   gem.required_ruby_version = ">= 2.7"
 
-  gem.add_dependency 'actionpack', ['>= 6.0', '< 8.0']
+  gem.add_dependency 'actionpack', ['>= 6.0', '< 8.1']
   gem.add_dependency 'content_disposition', '~> 1.0'
   gem.add_dependency 'zip_kit', ['~> 6', '>= 6.2.0', '< 7']
 
